@@ -1,9 +1,10 @@
 import pygame
+from game_field import load_image
 
 
-def init_pygame():
+def init_pygame() -> pygame.Surface:
     pygame.init()
-    screen = pygame.display.set_mode(1200, 700)
+    screen = pygame.display.set_mode((1200, 700))
     pygame.display.set_caption("Packman")
 
     return screen
@@ -11,6 +12,14 @@ def init_pygame():
 
 if __name__ == '__main__':
     screen = init_pygame()
-    while pygame.event.wait().type != pygame.QUIT:
-        pass
+    clock = pygame.time.Clock()
+    running = True
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        pygame.display.flip()
+        clock.tick(10)
+
     pygame.quit()
