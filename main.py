@@ -14,29 +14,16 @@ def get_size():
     return int(number_1), int(number_2)
 
 
-def init_pygame(size):
+def init_pygame():
     pygame.init()
-    screen = pygame.display.set_mode(size)
-    pygame.display.set_caption("Крест")
-
-    draw_cross(screen)
-    pygame.display.flip()
-    while pygame.event.wait().type != pygame.QUIT:
-        pass
-    pygame.quit()
+    screen = pygame.display.set_mode(1200, 700)
+    pygame.display.set_caption("Packman")
 
     return screen
 
 
-def draw_cross(screen):
-    screen_width, screen_height = screen.get_size()
-    pygame.draw.line(screen, "white", (0, 0), (screen_width, screen_height), width=5)
-    pygame.draw.line(screen, "white", (0, screen_height), (screen_width, 0), width=5)
-
-
 if __name__ == '__main__':
-    try:
-        size = width, height = get_size()
-        screen = init_pygame(size)
-    except ValueError:
-        print("Неправильный формат ввода")
+    screen = init_pygame()
+    while pygame.event.wait().type != pygame.QUIT:
+        pass
+    pygame.quit()
