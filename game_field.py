@@ -12,6 +12,8 @@ def load_image(name: str) -> pygame.image:
 
 
 class GameField:
+    CELL_SIZE = 40
+
     def __init__(self, pygame_screen: pygame.Surface) -> None:
         self.pygame_screen = pygame_screen
 
@@ -23,5 +25,14 @@ class GameField:
 
         self.field_scheme = [[symbol for symbol in line[:-1]] for line in data]
 
+    def get_field_size(self) -> tuple[int, int]:
+        width, height = len(self.field_scheme[0]), len(self.field_scheme)
+        return width, height
+
     def render(self) -> None:
-        pass
+        for row in range(len(self.field_scheme)):
+            for col in range(len(self.field_scheme[0])):
+                if self.field_scheme[row][col] == '*':
+                    pygame.draw.rect(self.pygame_screen, "blue",
+                                     (GameField.CELL_SIZE * row, GameField.CELL_SIZE * col,
+                                      GameField.CELL_SIZE, GameField.CELL_SIZE))
