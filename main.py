@@ -1,4 +1,5 @@
 import pygame
+from game_field import load_image
 
 
 def init_pygame():
@@ -11,6 +12,12 @@ def init_pygame():
 
 if __name__ == '__main__':
     screen = init_pygame()
-    while pygame.event.wait().type != pygame.QUIT:
-        pass
+    clock = pygame.time.Clock()
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        pygame.display.flip()
+        clock.tick(10)
     pygame.quit()
