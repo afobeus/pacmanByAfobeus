@@ -13,7 +13,7 @@ def load_image(name: str) -> pygame.image:
 
 class GameField:
     cell_size, cell_border_width = 40, 1
-    cell_border_color = "blue"
+    wall_border_color, cell_border_color = "blue", (63, 63, 252)
 
     def __init__(self) -> None:
         self.pygame_screen = None
@@ -46,6 +46,10 @@ class GameField:
         for row in range(len(self.field_scheme)):
             for col in range(len(self.field_scheme[row])):
                 if self.field_scheme[row][col] == '#':
+                    pygame.draw.rect(self.pygame_screen, GameField.wall_border_color,
+                                     (GameField.cell_size * col, GameField.cell_size * row,
+                                      GameField.cell_size, GameField.cell_size))
+                elif self.field_scheme[row][col] == '*':
                     pygame.draw.rect(self.pygame_screen, GameField.cell_border_color,
                                      (GameField.cell_size * col, GameField.cell_size * row,
                                       GameField.cell_size, GameField.cell_size),
@@ -53,26 +57,26 @@ class GameField:
         # deleting borders between neighbour wall cells
         for row in range(len(self.field_scheme)):
             for col in range(len(self.field_scheme[row])):
-                if not self.field_scheme[row][col] == '#':
+                if not self.field_scheme[row][col] == '*':
                     continue
 
-                if col > 0 and self.field_scheme[row][col - 1] == '#':
+                if col > 0 and self.field_scheme[row][col - 1] == '*':
                     pygame.draw.line(self.pygame_screen, "black",
                                      (GameField.cell_size * col, GameField.cell_size * row + 1),
                                      (GameField.cell_size * col,
                                       GameField.cell_size * (row + 1) - 2))
-                if col < len(self.field_scheme[row]) - 1 and self.field_scheme[row][col + 1] == '#':
+                if col < len(self.field_scheme[row]) - 1 and self.field_scheme[row][col + 1] == '*':
                     pygame.draw.line(self.pygame_screen, "black",
                                      (GameField.cell_size * (col + 1) - 1,
                                       GameField.cell_size * row + 1),
                                      (GameField.cell_size * (col + 1) - 1,
                                       GameField.cell_size * (row + 1) - 2), 1)
-                if row > 0 and self.field_scheme[row - 1][col] == '#':
+                if row > 0 and self.field_scheme[row - 1][col] == '*':
                     pygame.draw.line(self.pygame_screen, "black",
                                      (GameField.cell_size * col + 1, GameField.cell_size * row),
                                      (GameField.cell_size * (col + 1) - 2,
                                       GameField.cell_size * row))
-                if row < self.height - 1 and self.field_scheme[row + 1][col] == '#':
+                if row < self.height - 1 and self.field_scheme[row + 1][col] == '*':
                     pygame.draw.line(self.pygame_screen, "black",
                                      (GameField.cell_size * col + 1,
                                       GameField.cell_size * (row + 1) - 1),
