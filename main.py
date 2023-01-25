@@ -9,7 +9,7 @@ if __name__ == '__main__':
     running = True
 
     game_field = GameField()
-    game_field.load_map_scheme("vasa.txt")
+    game_field.load_map_scheme("original level.txt")
     screen = pygame.display.set_mode(game_field.get_screen_size())
     game_field.set_screen(screen)
     game_field.render()
