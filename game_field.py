@@ -2,15 +2,6 @@ import pygame
 import os
 
 
-def load_image(name: str) -> pygame.image:
-    fullname = os.path.join("pictures", name)
-    if not os.path.isfile(fullname):
-        raise ValueError(f"No image with name '{fullname}' found")
-
-    image = pygame.image.load(fullname)
-    return image
-
-
 class GameField:
     cell_size, cell_border_width = 40, 1
     wall_border_color, cell_border_color = "blue", (63, 63, 252)
