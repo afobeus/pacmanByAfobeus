@@ -1,5 +1,8 @@
 import pygame
-import os
+
+
+def get_indexes_by_cords(x, y):
+    return y // GameField.cell_size, x // GameField.cell_size
 
 
 class GameField:
@@ -27,6 +30,45 @@ class GameField:
             raise RuntimeError("Screen is not set yet")
 
         return self.width * GameField.cell_size, self.height * GameField.cell_size
+
+    def distance_to_wall(self, direction: str, object_x: int, object_y: int) -> int:
+        object_row, object_col = get_indexes_by_cords(object_x, object_y)
+        result = 0
+        if direction == "left":
+            for col in range(object_col, -1, -1):
+                if self.field_scheme[object_row][col] not in "*#":
+                    result += 1
+                else:
+                    break
+            return max(0, object_x - GameField.cell_size * (object_col - result + 1))
+        elif direction == "right":
+            for col in range(object_col, self.width):
+                if self.field_scheme[object_row][col] not in "*#":
+                    result += 1
+                else:
+                    break
+            return max(0, GameField.cell_size * (object_col + result + 1) - object_x - GameField.cell_size)
+        elif direction == "up":
+            for row in range(object_row, -1, -1):
+                if self.field_scheme[row][object_col] not in "*#":
+                    result += 1
+                else:
+                    break
+            return max(0, object_y - GameField.cell_size * (object_row - result + 1))
+        elif direction == "down":
+            for row in range(object_row, self.height):
+                if self.field_scheme[row][object_col] not in "*#":
+                    result += 1
+                else:
+                    break
+            return max(0, GameField.cell_size * (object_row + result + 1) - object_y - GameField.cell_size)
+
+    def min_distance_to_wall(self, direction: str, object_x: int, object_y: int):
+        packman_rectangle_vertexes = [(object_x, object_y), (object_x + GameField.cell_size - 1, object_y),
+                                      (object_x, object_y + GameField.cell_size - 1),
+                                      (object_x + GameField.cell_size - 1, object_y + GameField.cell_size - 1)]
+        print([self.distance_to_wall(direction, *vertex) for vertex in packman_rectangle_vertexes])
+        return min(self.distance_to_wall(direction, *vertex) for vertex in packman_rectangle_vertexes)
 
     def render(self) -> None:
         if self.field_scheme is None or self.pygame_screen is None:

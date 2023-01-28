@@ -1,11 +1,22 @@
 import pygame
 from game_field import GameField
-from essences import Packman
+from essences import Pacman
+
+
+def process_key_pressed(event):
+    if event.key == pygame.K_LEFT:
+        pacman.change_direction("left")
+    elif event.key == pygame.K_RIGHT:
+        pacman.change_direction("right")
+    elif event.key == pygame.K_UP:
+        pacman.change_direction("up")
+    elif event.key == pygame.K_DOWN:
+        pacman.change_direction("down")
 
 
 if __name__ == '__main__':
     pygame.init()
-    pygame.display.set_caption("Packman")
+    pygame.display.set_caption("Pacman")
     clock = pygame.time.Clock()
     running = True
 
@@ -15,15 +26,17 @@ if __name__ == '__main__':
     game_field.set_screen(screen)
 
     essences_sprite_group = pygame.sprite.Group()
-    packman = Packman("left", (360, 640))
-    essences_sprite_group.add(packman)
+    pacman = Pacman("left", (360, 640), game_field)
+    essences_sprite_group.add(pacman)
 
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == pygame.KEYDOWN:
+                process_key_pressed(event)
 
-        packman.move(clock.tick())
+        pacman.move(clock.tick())
 
         screen.fill("black")
         game_field.render()
