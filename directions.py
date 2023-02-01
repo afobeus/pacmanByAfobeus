@@ -3,5 +3,7 @@ directions_codes = {"up": (0, 1), "down": (0, -1), "left": (-1, 0), "right": (1,
 
 
 def opposite(direction_1, direction_2) -> bool:
-    x, y = direction_1.code[0] + direction_2.code[0], direction_1.code[1] + direction_2.code[1]
+    x, y = directions_codes[direction_1][0] + directions_codes[direction_2][0],\
+        directions_codes[direction_1][1] + directions_codes[direction_2][1]
+
     return x == y == 0

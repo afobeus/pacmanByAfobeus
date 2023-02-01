@@ -83,7 +83,7 @@ class Ghost(pygame.sprite.Sprite):
         self.game_field = game_field
         self.ticks_passed = 0
         self.last_cell_processed = None
-        self.current_direction = None
+        self.current_direction = directions.DIR_UP
         self.image = load_image("ghost.png")
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = start_cords
@@ -94,7 +94,9 @@ class Ghost(pygame.sprite.Sprite):
             distance = self.game_field.min_distance_to_wall(direction, self.rect.x, self.rect.y)
             if distance > 0:
                 possible_ways.append((direction, distance))
-        return random.choice(possible_ways)
+        if len(possible_ways) == 1:
+            return possible_ways[0]
+        return random.choice([way for way in possible_ways if not directions.opposite(way[0], self.current_direction)])
 
     def move(self, ticks_passed: int) -> None:
         self.ticks_passed += ticks_passed
@@ -102,7 +104,7 @@ class Ghost(pygame.sprite.Sprite):
             return
 
         cur_cell = get_indexes_by_cords(self.rect.x, self.rect.y)
-        if cur_cell != self.last_cell_processed:
+        if cur_cell != self.last_cell_processed or self.current_direction is None:
             direction, distance_to_wall = self.get_random_way()
         else:
             direction, distance_to_wall = self.current_direction, \
