@@ -46,6 +46,7 @@ class Pacman(pygame.sprite.Sprite):
         self.image = load_image("packman.png")
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = start_cords
+        self.ex_cell = get_indexes_by_cords(*start_cords)
         self.current_score = 0
 
     def change_direction(self, direction: str) -> None:
@@ -73,6 +74,13 @@ class Pacman(pygame.sprite.Sprite):
         self.rect = move_essence(self.current_direction, distance_to_wall,
                                  self.ticks_passed // Pacman.ticks_to_move_1_px, self.rect)
         self.ticks_passed %= Pacman.ticks_to_move_1_px
+
+    def check_pellets(self) -> None:
+        start_row, start_col = self.ex_cell
+        end_row, end_col = get_indexes_by_cords(self.rect.x, self.rect.y)
+        if self.current_direction == directions.DIR_UP:
+            for row in range(self.ex_cell[0]):
+                pass
 
     def eat_pellet(self, pellet: Pellet) -> None:
         self.current_score += pellet.get_value()
