@@ -3,19 +3,38 @@ import pygame
 import directions
 
 
-def get_indexes_by_cords(x, y):
+def get_indexes_by_cords(x: int, y: int) -> tuple[int, int]:
     return y // GameField.cell_size, x // GameField.cell_size
+
+
+class Pellet:
+    def __init__(self, value: int = 10) -> None:
+        self.eaten = False
+        self.value = value
+
+    def __repr__(self) -> str:
+        return str(self.eaten)
+
+    def set_eaten(self, eaten: bool) -> None:
+        self.eaten = eaten
+
+    def is_eaten(self) -> bool:
+        return self.eaten
+
+    def get_value(self) -> int:
+        return self.value
 
 
 class GameField:
     cell_size, cell_border_width = 40, 1
     wall_border_color, cell_border_color = "blue", (63, 63, 252)
+    pellet_color, pellet_radius = "yellow", 7
 
     def __init__(self) -> None:
         self.pygame_screen = None
         self.field_scheme = None
 
-    def set_screen(self, pygame_screen: pygame.Surface):
+    def set_screen(self, pygame_screen: pygame.Surface) -> None:
         self.pygame_screen = pygame_screen
 
     def load_map_scheme(self, scheme_file_name: str) -> None:
@@ -25,7 +44,9 @@ class GameField:
             raise ValueError("Empty scheme file for game field")
 
         self.width, self.height = max(map(len, data)), len(data)
-        self.field_scheme = list(map(lambda x: x.ljust(self.width, ' '), data))
+        self.field_scheme = list(map(lambda x: x.ljust(self.width, '.'), data))
+        self.pellets = [[Pellet() if self.field_scheme[row][col] == ' ' else None for col in range(self.width)]
+                        for row in range(self.height)]
 
     def get_screen_size(self) -> tuple[int, int]:
         if self.field_scheme is None:
@@ -65,7 +86,7 @@ class GameField:
                     break
             return max(0, GameField.cell_size * (object_row + result + 1) - object_y - GameField.cell_size - 1)
 
-    def min_distance_to_wall(self, direction: str, object_x: int, object_y: int):
+    def min_distance_to_wall(self, direction: str, object_x: int, object_y: int) -> int:
         packman_rectangle_vertexes = [(object_x, object_y), (object_x + GameField.cell_size - 1, object_y),
                                       (object_x, object_y + GameField.cell_size - 1),
                                       (object_x + GameField.cell_size - 1, object_y + GameField.cell_size - 1)]
@@ -116,3 +137,11 @@ class GameField:
                                       GameField.cell_size * (row + 1) - 1),
                                      (GameField.cell_size * (col + 1) - 2,
                                       GameField.cell_size * (row + 1) - 1), 1)
+
+        for row in range(self.height):
+            for col in range(self.width):
+                if isinstance(self.pellets[row][col], Pellet) and not self.pellets[row][col].is_eaten():
+                    pygame.draw.circle(self.pygame_screen, GameField.pellet_color,
+                                       (GameField.cell_size * col + GameField.cell_size / 2,
+                                        GameField.cell_size * row + GameField.cell_size / 2), GameField.pellet_radius)
+

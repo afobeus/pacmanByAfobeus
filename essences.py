@@ -3,7 +3,7 @@ import random
 
 import pygame
 
-from game_field import GameField, get_indexes_by_cords
+from game_field import GameField, Pellet, get_indexes_by_cords
 import directions
 
 
@@ -46,6 +46,7 @@ class Pacman(pygame.sprite.Sprite):
         self.image = load_image("packman.png")
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = start_cords
+        self.current_score = 0
 
     def change_direction(self, direction: str) -> None:
         if direction not in [directions.DIR_UP, directions.DIR_DOWN,
@@ -72,6 +73,10 @@ class Pacman(pygame.sprite.Sprite):
         self.rect = move_essence(self.current_direction, distance_to_wall,
                                  self.ticks_passed // Pacman.ticks_to_move_1_px, self.rect)
         self.ticks_passed %= Pacman.ticks_to_move_1_px
+
+    def eat_pellet(self, pellet: Pellet) -> None:
+        self.current_score += pellet.get_value()
+        pellet.set_eaten(True)
 
 
 class Ghost(pygame.sprite.Sprite):
