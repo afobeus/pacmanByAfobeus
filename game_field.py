@@ -52,7 +52,7 @@ class GameField:
         if self.field_scheme is None:
             raise RuntimeError("Screen is not set yet")
 
-        return self.width * GameField.cell_size, self.height * GameField.cell_size
+        return self.width * GameField.cell_size, self.height * GameField.cell_size + 40
 
     def distance_to_wall(self, direction: str, object_x: int, object_y: int) -> int:
         object_row, object_col = get_indexes_by_cords(object_x, object_y)
@@ -144,4 +144,3 @@ class GameField:
                     pygame.draw.circle(self.pygame_screen, GameField.pellet_color,
                                        (GameField.cell_size * col + GameField.cell_size / 2,
                                         GameField.cell_size * row + GameField.cell_size / 2), GameField.pellet_radius)
-

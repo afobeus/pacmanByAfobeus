@@ -17,6 +17,14 @@ def process_key_pressed(event):
         pacman.change_direction(directions.DIR_DOWN)
 
 
+def render_score():
+    font = pygame.font.Font(None, 50)
+    text = font.render(str(pacman.get_score()), True, (100, 255, 100))
+    text_x = 0
+    text_y = (game_field.height + 1) * GameField.cell_size - 35
+    screen.blit(text, (text_x, text_y))
+
+
 if __name__ == '__main__':
     pygame.init()
     pygame.display.set_caption("Pacman")
@@ -39,7 +47,7 @@ if __name__ == '__main__':
     essences_sprite_group.add(new_ghost_2)
 
     while running:
-        # time.sleep(0.05)
+        # time.sleep(1)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -55,6 +63,7 @@ if __name__ == '__main__':
         screen.fill("black")
         game_field.render()
         essences_sprite_group.draw(screen)
+        render_score()
         pygame.display.flip()
 
     pygame.quit()

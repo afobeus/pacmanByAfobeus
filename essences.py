@@ -30,7 +30,7 @@ def move_essence(direction: str, distance_to_wall: int, distance: int,
 
 
 class Pacman(pygame.sprite.Sprite):
-    ticks_to_move_1_px = 14
+    ticks_to_move_1_px = 140
 
     def __init__(self, start_direction: str, start_cords: tuple[int, int], game_field: GameField) -> None:
         if start_direction not in [directions.DIR_UP, directions.DIR_DOWN,
@@ -74,17 +74,44 @@ class Pacman(pygame.sprite.Sprite):
         self.rect = move_essence(self.current_direction, distance_to_wall,
                                  self.ticks_passed // Pacman.ticks_to_move_1_px, self.rect)
         self.ticks_passed %= Pacman.ticks_to_move_1_px
+        self.check_pellets()
+        self.ex_cell = get_indexes_by_cords(self.rect.x, self.rect.y)
 
     def check_pellets(self) -> None:
         start_row, start_col = self.ex_cell
-        end_row, end_col = get_indexes_by_cords(self.rect.x, self.rect.y)
+        object_row, object_col = get_indexes_by_cords(self.rect.x, self.rect.y)
+
         if self.current_direction == directions.DIR_UP:
-            for row in range(self.ex_cell[0]):
-                pass
+            end_row = get_indexes_by_cords(self.rect.x, self.rect.y - 1)[0]
+            for row in range(start_row, end_row, -1):
+                pellet = self.game_field.pellets[row][object_col]
+                if pellet is not None and not pellet.is_eaten():
+                    self.eat_pellet(pellet)
+        elif self.current_direction == directions.DIR_DOWN:
+            end_row = get_indexes_by_cords(self.rect.x, self.rect.y + GameField.cell_size + 1)[0]
+            for row in range(start_row, end_row):
+                pellet = self.game_field.pellets[row][object_col]
+                if pellet is not None and not pellet.is_eaten():
+                    self.eat_pellet(pellet)
+        elif self.current_direction == directions.DIR_LEFT:
+            end_col = get_indexes_by_cords(self.rect.x - 1, self.rect.y)[1]
+            for col in range(start_col, end_col, -1):
+                pellet = self.game_field.pellets[object_row][col]
+                if pellet is not None and not pellet.is_eaten():
+                    self.eat_pellet(pellet)
+        elif self.current_direction == directions.DIR_RIGHT:
+            end_col = get_indexes_by_cords(self.rect.x + GameField.cell_size + 1, self.rect.y)[1]
+            for col in range(start_col, end_col):
+                pellet = self.game_field.pellets[object_row][col]
+                if pellet is not None and not pellet.is_eaten():
+                    self.eat_pellet(pellet)
 
     def eat_pellet(self, pellet: Pellet) -> None:
         self.current_score += pellet.get_value()
         pellet.set_eaten(True)
+
+    def get_score(self):
+        return self.current_score
 
 
 class Ghost(pygame.sprite.Sprite):
