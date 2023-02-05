@@ -17,7 +17,7 @@ def process_key_pressed(event):
         pacman.change_direction(directions.DIR_DOWN)
 
 
-def render_score():
+def render_score() -> None:
     font = pygame.font.Font(None, 50)
     text = font.render(str(pacman.get_score()), True, (100, 255, 100))
     text_x = 0
@@ -39,12 +39,10 @@ if __name__ == '__main__':
     essences_sprite_group = pygame.sprite.Group()
     pacman = Pacman(directions.DIR_LEFT, (360, 640), game_field)
     essences_sprite_group.add(pacman)
-    red_ghost = Ghost((360, 400), game_field)
-    essences_sprite_group.add(red_ghost)
-    new_ghost = Ghost((360, 400), game_field)
-    essences_sprite_group.add(new_ghost)
-    new_ghost_2 = Ghost((360, 400), game_field)
-    essences_sprite_group.add(new_ghost_2)
+    ghosts = [Ghost((GameField.cell_size * col, GameField.cell_size * row), game_field)
+              for row, col in game_field.get_ghosts_cells()]
+    for ghost in ghosts:
+        essences_sprite_group.add(ghost)
 
     while running:
         # time.sleep(1)
@@ -56,9 +54,8 @@ if __name__ == '__main__':
 
         ticks_passed = clock.tick()
         pacman.move(ticks_passed)
-        red_ghost.move(ticks_passed)
-        new_ghost.move(ticks_passed)
-        new_ghost_2.move(ticks_passed)
+        for ghost in ghosts:
+            ghost.move(ticks_passed)
 
         screen.fill("black")
         game_field.render()

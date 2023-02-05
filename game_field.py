@@ -48,6 +48,10 @@ class GameField:
         self.pellets = [[Pellet() if self.field_scheme[row][col] == ' ' else None for col in range(self.width)]
                         for row in range(self.height)]
 
+    def get_ghosts_cells(self):
+        return [(row, col) for col in range(self.width) for row in range(self.height)
+                if self.field_scheme[row][col] == '@']
+
     def get_screen_size(self) -> tuple[int, int]:
         if self.field_scheme is None:
             raise RuntimeError("Screen is not set yet")

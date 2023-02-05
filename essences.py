@@ -30,7 +30,7 @@ def move_essence(direction: str, distance_to_wall: int, distance: int,
 
 
 class Pacman(pygame.sprite.Sprite):
-    ticks_to_move_1_px = 140
+    ticks_to_move_1_px = 14
 
     def __init__(self, start_direction: str, start_cords: tuple[int, int], game_field: GameField) -> None:
         if start_direction not in [directions.DIR_UP, directions.DIR_DOWN,
