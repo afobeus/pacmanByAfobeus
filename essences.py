@@ -30,7 +30,7 @@ def move_essence(direction: str, distance_to_wall: int, distance: int,
 
 
 class Pacman(pygame.sprite.Sprite):
-    ticks_to_move_1_px = 14
+    ticks_to_move_1_px = 10
 
     def __init__(self, start_direction: str, start_cords: tuple[int, int], game_field: GameField) -> None:
         if start_direction not in [directions.DIR_UP, directions.DIR_DOWN,
@@ -113,10 +113,13 @@ class Pacman(pygame.sprite.Sprite):
     def get_score(self):
         return self.current_score
 
+    def get_cords(self) -> tuple[int, int]:
+        return self.rect.x, self.rect.y
+
 
 class Ghost(pygame.sprite.Sprite):
     directions = [directions.DIR_UP, directions.DIR_DOWN, directions.DIR_LEFT, directions.DIR_RIGHT]
-    ticks_to_move_1_px = 13
+    ticks_to_move_1_px = 9
 
     def __init__(self, start_cords: tuple[int, int], game_field: GameField) -> None:
         super().__init__()
@@ -128,7 +131,7 @@ class Ghost(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = start_cords
 
-    def get_random_way(self):
+    def get_random_way(self) -> tuple[str, int]:
         possible_ways = []
         for direction in Ghost.directions:
             distance = self.game_field.min_distance_to_wall(direction, self.rect.x, self.rect.y)
@@ -138,7 +141,30 @@ class Ghost(pygame.sprite.Sprite):
             return possible_ways[0]
         return random.choice([way for way in possible_ways if not directions.opposite(way[0], self.current_direction)])
 
-    def move(self, ticks_passed: int) -> None:
+    def get_way_to_pacman(self, pacman: Pacman):
+        object_x, object_y = self.rect.x, self.rect.y
+        pacman_x, pacman_y = pacman.get_cords()
+        for direction in Ghost.directions:
+            distance_to_wall = self.game_field.min_distance_to_wall(direction, object_x, object_y)
+            if direction == directions.DIR_LEFT:
+                distance_to_pacman = object_x - (pacman_x - GameField.cell_size)
+                if object_y == pacman_y and 0 <= distance_to_pacman <= distance_to_wall:
+                    return direction
+            elif direction == directions.DIR_RIGHT:
+                distance_to_pacman = pacman_x - (object_x + GameField.cell_size)
+                if object_y == pacman_y and 0 <= distance_to_pacman <= distance_to_wall:
+                    return direction
+            elif direction == directions.DIR_UP:
+                distance_to_pacman = object_y - (pacman_y + GameField.cell_size)
+                if object_y == pacman_y and 0 <= distance_to_pacman <= distance_to_wall:
+                    return direction
+            elif direction == directions.DIR_DOWN:
+                distance_to_pacman = pacman_y - (object_y + GameField.cell_size)
+                if object_y == pacman_y and 0 <= distance_to_pacman <= distance_to_wall:
+                    return direction
+        return None
+
+    def move(self, ticks_passed: int, pacman: Pacman) -> None:
         self.ticks_passed += ticks_passed
         if self.ticks_passed < Ghost.ticks_to_move_1_px:
             return

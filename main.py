@@ -19,7 +19,7 @@ def process_key_pressed(event):
 
 def render_score() -> None:
     font = pygame.font.Font(None, 50)
-    text = font.render(str(pacman.get_score()), True, (100, 255, 100))
+    text = font.render("Score: " + str(pacman.get_score()), True, (100, 255, 100))
     text_x = 0
     text_y = (game_field.height + 1) * GameField.cell_size - 35
     screen.blit(text, (text_x, text_y))
@@ -55,7 +55,7 @@ if __name__ == '__main__':
         ticks_passed = clock.tick()
         pacman.move(ticks_passed)
         for ghost in ghosts:
-            ghost.move(ticks_passed)
+            ghost.move(ticks_passed, pacman)
 
         screen.fill("black")
         game_field.render()
