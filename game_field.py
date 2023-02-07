@@ -1,6 +1,6 @@
 import pygame
 
-import directions
+import core
 
 
 def get_indexes_by_cords(x: int, y: int) -> tuple[int, int]:
@@ -61,28 +61,28 @@ class GameField:
     def distance_to_wall(self, direction: str, object_x: int, object_y: int) -> int:
         object_row, object_col = get_indexes_by_cords(object_x, object_y)
         result = 0
-        if direction == directions.DIR_LEFT:
+        if direction == core.DIR_LEFT:
             for col in range(object_col, -1, -1):
                 if self.field_scheme[object_row][col] not in "*#":
                     result += 1
                 else:
                     break
             return max(0, object_x - GameField.cell_size * (object_col - result + 1))
-        elif direction == directions.DIR_RIGHT:
+        elif direction == core.DIR_RIGHT:
             for col in range(object_col, self.width):
                 if self.field_scheme[object_row][col] not in "*#":
                     result += 1
                 else:
                     break
             return max(0, GameField.cell_size * (object_col + result + 1) - object_x - GameField.cell_size - 1)
-        elif direction == directions.DIR_UP:
+        elif direction == core.DIR_UP:
             for row in range(object_row, -1, -1):
                 if self.field_scheme[row][object_col] not in "*#":
                     result += 1
                 else:
                     break
             return max(0, object_y - GameField.cell_size * (object_row - result + 1))
-        elif direction == directions.DIR_DOWN:
+        elif direction == core.DIR_DOWN:
             for row in range(object_row, self.height):
                 if self.field_scheme[row][object_col] not in "*#":
                     result += 1

@@ -1,28 +1,18 @@
-import os
 import random
 
 import pygame
 
 from game_field import GameField, Pellet, get_indexes_by_cords
-import directions
-
-
-def load_image(name: str) -> pygame.image:
-    fullname = os.path.join("", name)
-    if not os.path.isfile(fullname):
-        raise ValueError(f"No image with name '{fullname}' found")
-
-    image = pygame.image.load(fullname)
-    return image
+import core
 
 
 def move_essence(direction: str, distance_to_wall: int, distance: int,
                  object_rect: pygame.rect.Rect) -> pygame.rect.Rect:
-    if direction == directions.DIR_LEFT:
+    if direction == core.DIR_LEFT:
         new_rect = object_rect.move(max(-distance_to_wall, -distance), 0)
-    elif direction == directions.DIR_RIGHT:
+    elif direction == core.DIR_RIGHT:
         new_rect = object_rect.move(min(distance_to_wall, distance), 0)
-    elif direction == directions.DIR_UP:
+    elif direction == core.DIR_UP:
         new_rect = object_rect.move(0, max(-distance_to_wall, -distance))
     else:
         new_rect = object_rect.move(0, min(distance_to_wall, distance))
@@ -33,8 +23,7 @@ class Pacman(pygame.sprite.Sprite):
     ticks_to_move_1_px = 10
 
     def __init__(self, start_direction: str, start_cords: tuple[int, int], game_field: GameField) -> None:
-        if start_direction not in [directions.DIR_UP, directions.DIR_DOWN,
-                                   directions.DIR_LEFT, directions.DIR_RIGHT]:
+        if start_direction not in [core.DIR_UP, core.DIR_DOWN, core.DIR_LEFT, core.DIR_RIGHT]:
             raise ValueError("Incorrect direction given")
 
         super().__init__()
@@ -43,15 +32,14 @@ class Pacman(pygame.sprite.Sprite):
         self.game_field = game_field
         self.ticks_passed = 0
 
-        self.image = load_image("packman.png")
+        self.image = core.load_image("packman.png")
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = start_cords
         self.ex_cell = get_indexes_by_cords(*start_cords)
         self.current_score = 0
 
     def change_direction(self, direction: str) -> None:
-        if direction not in [directions.DIR_UP, directions.DIR_DOWN,
-                             directions.DIR_LEFT, directions.DIR_RIGHT]:
+        if direction not in [core.DIR_UP, core.DIR_DOWN, core.DIR_LEFT, core.DIR_RIGHT]:
             raise ValueError("Incorrect direction given")
         self.next_direction = direction
 
@@ -81,25 +69,25 @@ class Pacman(pygame.sprite.Sprite):
         start_row, start_col = self.ex_cell
         object_row, object_col = get_indexes_by_cords(self.rect.x, self.rect.y)
 
-        if self.current_direction == directions.DIR_UP:
+        if self.current_direction == core.DIR_UP:
             end_row = get_indexes_by_cords(self.rect.x, self.rect.y - 1)[0]
             for row in range(start_row, end_row, -1):
                 pellet = self.game_field.pellets[row][object_col]
                 if pellet is not None and not pellet.is_eaten():
                     self.eat_pellet(pellet)
-        elif self.current_direction == directions.DIR_DOWN:
+        elif self.current_direction == core.DIR_DOWN:
             end_row = get_indexes_by_cords(self.rect.x, self.rect.y + GameField.cell_size + 1)[0]
             for row in range(start_row, end_row):
                 pellet = self.game_field.pellets[row][object_col]
                 if pellet is not None and not pellet.is_eaten():
                     self.eat_pellet(pellet)
-        elif self.current_direction == directions.DIR_LEFT:
+        elif self.current_direction == core.DIR_LEFT:
             end_col = get_indexes_by_cords(self.rect.x - 1, self.rect.y)[1]
             for col in range(start_col, end_col, -1):
                 pellet = self.game_field.pellets[object_row][col]
                 if pellet is not None and not pellet.is_eaten():
                     self.eat_pellet(pellet)
-        elif self.current_direction == directions.DIR_RIGHT:
+        elif self.current_direction == core.DIR_RIGHT:
             end_col = get_indexes_by_cords(self.rect.x + GameField.cell_size + 1, self.rect.y)[1]
             for col in range(start_col, end_col):
                 pellet = self.game_field.pellets[object_row][col]
@@ -118,16 +106,16 @@ class Pacman(pygame.sprite.Sprite):
 
 
 class Ghost(pygame.sprite.Sprite):
-    directions = [directions.DIR_UP, directions.DIR_DOWN, directions.DIR_LEFT, directions.DIR_RIGHT]
-    ticks_to_move_1_px = 9
+    directions = [core.DIR_UP, core.DIR_DOWN, core.DIR_LEFT, core.DIR_RIGHT]
+    ticks_to_move_1_px = 10
 
     def __init__(self, start_cords: tuple[int, int], game_field: GameField) -> None:
         super().__init__()
         self.game_field = game_field
         self.ticks_passed = 0
         self.last_cell_processed = None
-        self.current_direction = directions.DIR_UP
-        self.image = load_image("ghost.png")
+        self.current_direction = core.DIR_UP
+        self.image = core.load_image("ghost.png")
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = start_cords
 
@@ -139,26 +127,26 @@ class Ghost(pygame.sprite.Sprite):
                 possible_ways.append((direction, distance))
         if len(possible_ways) == 1:
             return possible_ways[0]
-        return random.choice([way for way in possible_ways if not directions.opposite(way[0], self.current_direction)])
+        return random.choice([way for way in possible_ways if not core.opposite(way[0], self.current_direction)])
 
     def get_way_to_pacman(self, pacman: Pacman):
         object_x, object_y = self.rect.x, self.rect.y
         pacman_x, pacman_y = pacman.get_cords()
         for direction in Ghost.directions:
             distance_to_wall = self.game_field.min_distance_to_wall(direction, object_x, object_y)
-            if direction == directions.DIR_LEFT:
+            if direction == core.DIR_LEFT:
                 distance_to_pacman = object_x - (pacman_x - GameField.cell_size)
                 if object_y == pacman_y and 0 <= distance_to_pacman <= distance_to_wall:
                     return direction
-            elif direction == directions.DIR_RIGHT:
+            elif direction == core.DIR_RIGHT:
                 distance_to_pacman = pacman_x - (object_x + GameField.cell_size)
                 if object_y == pacman_y and 0 <= distance_to_pacman <= distance_to_wall:
                     return direction
-            elif direction == directions.DIR_UP:
+            elif direction == core.DIR_UP:
                 distance_to_pacman = object_y - (pacman_y + GameField.cell_size)
                 if object_x == pacman_x and 0 <= distance_to_pacman <= distance_to_wall:
                     return direction
-            elif direction == directions.DIR_DOWN:
+            elif direction == core.DIR_DOWN:
                 distance_to_pacman = pacman_y - (object_y + GameField.cell_size)
                 if object_x == pacman_x and 0 <= distance_to_pacman <= distance_to_wall:
                     return direction
@@ -171,11 +159,10 @@ class Ghost(pygame.sprite.Sprite):
 
         cur_cell = get_indexes_by_cords(self.rect.x, self.rect.y)
         way_to_pacman = self.get_way_to_pacman(pacman)
-        print(way_to_pacman)
         if way_to_pacman is not None:
             direction = way_to_pacman
             distance_to_wall = self.game_field.min_distance_to_wall(direction, self.rect.x, self.rect.y)
-        elif cur_cell != self.last_cell_processed or self.current_direction is None:
+        elif cur_cell != self.last_cell_processed:
             direction, distance_to_wall = self.get_random_way()
         else:
             direction, distance_to_wall = self.current_direction, \
