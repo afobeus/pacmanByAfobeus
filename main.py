@@ -9,8 +9,7 @@ import core
 
 def start_screen():
     intro_text = ["Pacman", "by afobeus", "",
-                  "Press any key",
-                  "to start"]
+                  "Press any key", "to start"]
 
     width, height = screen.get_size()
     background = pygame.transform.scale(core.load_image("start_screen.png"), (width, height))
@@ -22,7 +21,7 @@ def start_screen():
         intro_rect = string_rendered.get_rect()
         current_text_y += 10
         intro_rect.top = current_text_y
-        intro_rect.x = width / 2 - intro_rect.width / 2
+        intro_rect.x = width // 2 - intro_rect.width // 2
         current_text_y += intro_rect.height
         screen.blit(string_rendered, intro_rect)
 

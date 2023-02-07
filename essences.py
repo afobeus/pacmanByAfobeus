@@ -107,7 +107,7 @@ class Pacman(pygame.sprite.Sprite):
 
 class Ghost(pygame.sprite.Sprite):
     directions = [core.DIR_UP, core.DIR_DOWN, core.DIR_LEFT, core.DIR_RIGHT]
-    ticks_to_move_1_px = 10
+    ticks_to_move_1_px = 11
 
     def __init__(self, start_cords: tuple[int, int], game_field: GameField) -> None:
         super().__init__()
