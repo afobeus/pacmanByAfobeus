@@ -156,11 +156,11 @@ class Ghost(pygame.sprite.Sprite):
                     return direction
             elif direction == directions.DIR_UP:
                 distance_to_pacman = object_y - (pacman_y + GameField.cell_size)
-                if object_y == pacman_y and 0 <= distance_to_pacman <= distance_to_wall:
+                if object_x == pacman_x and 0 <= distance_to_pacman <= distance_to_wall:
                     return direction
             elif direction == directions.DIR_DOWN:
                 distance_to_pacman = pacman_y - (object_y + GameField.cell_size)
-                if object_y == pacman_y and 0 <= distance_to_pacman <= distance_to_wall:
+                if object_x == pacman_x and 0 <= distance_to_pacman <= distance_to_wall:
                     return direction
         return None
 
@@ -170,7 +170,12 @@ class Ghost(pygame.sprite.Sprite):
             return
 
         cur_cell = get_indexes_by_cords(self.rect.x, self.rect.y)
-        if cur_cell != self.last_cell_processed or self.current_direction is None:
+        way_to_pacman = self.get_way_to_pacman(pacman)
+        print(way_to_pacman)
+        if way_to_pacman is not None:
+            direction = way_to_pacman
+            distance_to_wall = self.game_field.min_distance_to_wall(direction, self.rect.x, self.rect.y)
+        elif cur_cell != self.last_cell_processed or self.current_direction is None:
             direction, distance_to_wall = self.get_random_way()
         else:
             direction, distance_to_wall = self.current_direction, \
