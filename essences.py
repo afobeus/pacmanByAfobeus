@@ -20,9 +20,11 @@ def move_essence(direction: str, distance_to_wall: int, distance: int,
 
 
 class Pacman(pygame.sprite.Sprite):
-    ticks_to_move_1_px = 10
+    ticks_to_move_1_px, ticks_to_update_animation = 10, 25
+    direction_frames_indexes = {core.DIR_UP: 4, core.DIR_DOWN: 6, core.DIR_LEFT:0, core.DIR_RIGHT: 2}
 
-    def __init__(self, start_direction: str, start_cords: tuple[int, int], game_field: GameField) -> None:
+    def __init__(self, start_direction: str, start_cords: tuple[int, int],
+                 game_field: GameField, sprites_sheet: str) -> None:
         if start_direction not in [core.DIR_UP, core.DIR_DOWN, core.DIR_LEFT, core.DIR_RIGHT]:
             raise ValueError("Incorrect direction given")
 
@@ -31,12 +33,25 @@ class Pacman(pygame.sprite.Sprite):
         self.next_direction = None
         self.game_field = game_field
         self.ticks_passed = 0
-
-        self.image = core.load_image("packman.png")
-        self.rect = self.image.get_rect()
-        self.rect.x, self.rect.y = start_cords
+        self.animation_ticks_passed = 0
         self.ex_cell = get_indexes_by_cords(*start_cords)
         self.current_score = 0
+
+        self.rect = pygame.Rect((start_cords[0], start_cords[1],
+                                 GameField.cell_size, GameField.cell_size))
+        self.cut_sheet(core.load_image(sprites_sheet))
+
+    def cut_sheet(self, sheet) -> None:
+        self.frames = []
+        columns, rows = sheet.get_width() // GameField.cell_size,\
+            sheet.get_height() // GameField.cell_size
+
+        for j in range(rows):
+            for i in range(columns):
+                frame_location = (GameField.cell_size * i, GameField.cell_size * j)
+                self.frames.append(sheet.subsurface(pygame.Rect(frame_location, self.rect.size)))
+        self.animation_state = -1
+        self.image = self.frames[Pacman.direction_frames_indexes[self.current_direction]]
 
     def change_direction(self, direction: str) -> None:
         if direction not in [core.DIR_UP, core.DIR_DOWN, core.DIR_LEFT, core.DIR_RIGHT]:
@@ -63,7 +78,17 @@ class Pacman(pygame.sprite.Sprite):
                                  self.ticks_passed // Pacman.ticks_to_move_1_px, self.rect)
         self.ticks_passed %= Pacman.ticks_to_move_1_px
         self.check_pellets()
+        self.update_animation(ticks_passed)
         self.ex_cell = get_indexes_by_cords(self.rect.x, self.rect.y)
+
+    def update_animation(self, ticks_passed: int) -> None:
+        self.animation_ticks_passed += ticks_passed
+        if self.animation_ticks_passed < Pacman.ticks_to_update_animation:
+            return
+
+        self.animation_state = (self.animation_state + 1) % (len(self.frames) // 4)
+        self.image = self.frames[self.animation_state + Pacman.direction_frames_indexes[self.current_direction]]
+        self.animation_ticks_passed %= Pacman.ticks_to_update_animation
 
     def check_pellets(self) -> None:
         start_row, start_col = self.ex_cell

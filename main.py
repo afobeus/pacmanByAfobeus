@@ -7,7 +7,7 @@ from essences import Pacman, Ghost
 import core
 
 
-def start_screen():
+def start_screen() -> None:
     intro_text = ["Pacman", "by afobeus", "",
                   "Press any key", "to start"]
 
@@ -30,8 +30,7 @@ def start_screen():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit(0)
-            elif event.type == pygame.KEYDOWN or \
-                    event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                 return
         pygame.display.flip()
 
@@ -75,7 +74,7 @@ if __name__ == '__main__':
     start_screen()
 
     essences_sprite_group = pygame.sprite.Group()
-    pacman = Pacman(core.DIR_LEFT, (360, 640), game_field)
+    pacman = Pacman(core.DIR_LEFT, (360, 640), game_field, "pacman_sprite_sheet.png")
     essences_sprite_group.add(pacman)
     ghosts = [Ghost((GameField.cell_size * col, GameField.cell_size * row), game_field)
               for row, col in game_field.get_ghosts_cells()]
