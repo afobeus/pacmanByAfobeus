@@ -7,16 +7,13 @@ from essences import Pacman, Ghost
 import core
 
 
-def start_screen() -> None:
-    intro_text = ["Pacman", "by afobeus", "",
-                  "Press any key", "to start"]
-
+def info_screen(text) -> None:
     width, height = screen.get_size()
     background = pygame.transform.scale(core.load_image("start_screen.png"), (width, height))
     screen.blit(background, (0, 0))
     font = pygame.font.Font(None, 50)
     current_text_y = 30
-    for line in intro_text:
+    for line in text:
         string_rendered = font.render(line, True, pygame.Color('white'))
         intro_rect = string_rendered.get_rect()
         current_text_y += 10
@@ -71,7 +68,7 @@ if __name__ == '__main__':
     game_field.load_map_scheme("original level.txt")
     screen = pygame.display.set_mode(game_field.get_screen_size())
     game_field.set_screen(screen)
-    start_screen()
+    info_screen(["Pacman", "by afobeus", "", "Press any key", "to start"])
 
     essences_sprite_group = pygame.sprite.Group()
     pacman = Pacman(core.DIR_LEFT, (360, 640), game_field, "pacman_sprite_sheet.png")
@@ -90,8 +87,13 @@ if __name__ == '__main__':
             elif event.type == pygame.KEYDOWN:
                 process_key_pressed(event)
 
+        if game_field.get_pellets_left() == 0:
+            info_screen(["You win!", f"Your score: {pacman.get_score()}"])
+            break
+
         if pacman_collides_ghost():
-            print("be")
+            info_screen(["You lose", f"Your score: {pacman.get_score()}"])
+            break
 
         ticks_passed = clock.tick()
         pacman.move(ticks_passed)

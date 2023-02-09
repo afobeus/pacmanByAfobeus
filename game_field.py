@@ -148,3 +148,7 @@ class GameField:
                     pygame.draw.circle(self.pygame_screen, GameField.pellet_color,
                                        (GameField.cell_size * col + GameField.cell_size / 2,
                                         GameField.cell_size * row + GameField.cell_size / 2), GameField.pellet_radius)
+
+    def get_pellets_left(self):
+        return sum(1 for row in range(self.height) for col in range(self.width) if self.pellets[row][col] is not None
+                   and not self.pellets[row][col].is_eaten())

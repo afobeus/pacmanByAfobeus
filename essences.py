@@ -21,7 +21,7 @@ def move_essence(direction: str, distance_to_wall: int, distance: int,
 
 class Pacman(pygame.sprite.Sprite):
     ticks_to_move_1_px, ticks_to_update_animation = 10, 25
-    direction_frames_indexes = {core.DIR_UP: 4, core.DIR_DOWN: 6, core.DIR_LEFT:0, core.DIR_RIGHT: 2}
+    direction_frames_indexes = {core.DIR_UP: 4, core.DIR_DOWN: 6, core.DIR_LEFT: 0, core.DIR_RIGHT: 2}
 
     def __init__(self, start_direction: str, start_cords: tuple[int, int],
                  game_field: GameField, sprites_sheet: str) -> None:
@@ -78,7 +78,8 @@ class Pacman(pygame.sprite.Sprite):
                                  self.ticks_passed // Pacman.ticks_to_move_1_px, self.rect)
         self.ticks_passed %= Pacman.ticks_to_move_1_px
         self.check_pellets()
-        self.update_animation(ticks_passed)
+        if distance_to_wall > 0:
+            self.update_animation(ticks_passed)
         self.ex_cell = get_indexes_by_cords(self.rect.x, self.rect.y)
 
     def update_animation(self, ticks_passed: int) -> None:
