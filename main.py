@@ -69,7 +69,7 @@ def start_game(show_start_screen=True):
         info_screen(["Pacman", "by afobeus", "", "Press any key", "to start"], screen)
 
     essences_sprite_group = pygame.sprite.Group()
-    pacman = Pacman(core.DIR_LEFT, (360, 640), game_field, "pacman_sprite_sheet.png")
+    pacman = Pacman(core.DIR_LEFT, game_field.get_pacman_cords(), game_field, "pacman_sprite_sheet.png")
     essences_sprite_group.add(pacman)
     ghosts = [Ghost((GameField.cell_size * col, GameField.cell_size * row), game_field)
               for row, col in game_field.get_ghosts_cells()]

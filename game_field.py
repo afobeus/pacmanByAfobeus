@@ -52,6 +52,12 @@ class GameField:
         return [(row, col) for col in range(self.width) for row in range(self.height)
                 if self.field_scheme[row][col] == '@']
 
+    def get_pacman_cords(self):
+        for row in range(self.height):
+            for col in range(self.width):
+                if self.field_scheme[row][col] == '%':
+                    return col * GameField.cell_size, row * GameField.cell_size
+
     def get_screen_size(self) -> tuple[int, int]:
         if self.field_scheme is None:
             raise RuntimeError("Screen is not set yet")
