@@ -121,8 +121,13 @@ class Pacman(pygame.sprite.Sprite):
                     self.eat_pellet(pellet)
 
     def eat_pellet(self, pellet: Pellet) -> None:
+        if pellet.is_eaten():
+            return
+
         self.current_score += pellet.get_value()
         pellet.set_eaten(True)
+        if pellet.is_magic():
+            self.game_field.set_magic_state(True)
 
     def get_score(self):
         return self.current_score

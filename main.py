@@ -96,9 +96,11 @@ def start_game(show_start_screen=True):
             return 1
 
         ticks_passed = clock.tick()
+
         pacman.move(ticks_passed)
         for ghost in ghosts:
             ghost.move(ticks_passed, pacman)
+        game_field.update_magic_state(ticks_passed)
 
         screen.fill("black")
         game_field.render()

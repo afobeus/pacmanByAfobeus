@@ -8,9 +8,10 @@ def get_indexes_by_cords(x: int, y: int) -> tuple[int, int]:
 
 
 class Pellet:
-    def __init__(self, value: int = 10) -> None:
+    def __init__(self, value: int = 10, magic: bool = False) -> None:
         self.eaten = False
         self.value = value
+        self.magic = magic
 
     def __repr__(self) -> str:
         return str(self.eaten)
@@ -21,6 +22,9 @@ class Pellet:
     def is_eaten(self) -> bool:
         return self.eaten
 
+    def is_magic(self) -> bool:
+        return self.magic
+
     def get_value(self) -> int:
         return self.value
 
@@ -28,11 +32,15 @@ class Pellet:
 class GameField:
     cell_size, cell_border_width = 40, 1
     wall_border_color, cell_border_color = "blue", (63, 63, 252)
-    pellet_color, pellet_radius = "yellow", 7
+    pellet_color, pellet_radius = "yellow", 5
+    magic_pellet_color, magic_pellet_radius = "yellow", 12
+    ticks_to_end_magic_state = 10_000
 
     def __init__(self) -> None:
         self.pygame_screen = None
         self.field_scheme = None
+        self.in_magic_state = False
+        self.magic_state_ticks = 0
 
     def set_screen(self, pygame_screen: pygame.Surface) -> None:
         self.pygame_screen = pygame_screen
@@ -45,8 +53,17 @@ class GameField:
 
         self.width, self.height = max(map(len, data)), len(data)
         self.field_scheme = list(map(lambda x: x.ljust(self.width, '.'), data))
-        self.pellets = [[Pellet() if self.field_scheme[row][col] == ' ' else None for col in range(self.width)]
-                        for row in range(self.height)]
+        self.pellets = []
+        for row in range(self.height):
+            current_row = []
+            for col in range(self.width):
+                if self.field_scheme[row][col] == ' ':
+                    current_row.append(Pellet())
+                elif self.field_scheme[row][col] == '$':
+                    current_row.append(Pellet(0, True))
+                else:
+                    current_row.append(None)
+            self.pellets.append(current_row)
 
     def get_ghosts_cells(self):
         return [(row, col) for col in range(self.width) for row in range(self.height)
@@ -150,11 +167,29 @@ class GameField:
 
         for row in range(self.height):
             for col in range(self.width):
-                if isinstance(self.pellets[row][col], Pellet) and not self.pellets[row][col].is_eaten():
-                    pygame.draw.circle(self.pygame_screen, GameField.pellet_color,
+                cur_object = self.pellets[row][col]
+                if isinstance(cur_object, Pellet) and not cur_object.is_eaten():
+                    if cur_object.is_magic():
+                        color, radius = GameField.magic_pellet_color, GameField.magic_pellet_radius
+                    else:
+                        color, radius = GameField.pellet_color, GameField.pellet_radius
+                    pygame.draw.circle(self.pygame_screen, color,
                                        (GameField.cell_size * col + GameField.cell_size / 2,
-                                        GameField.cell_size * row + GameField.cell_size / 2), GameField.pellet_radius)
+                                        GameField.cell_size * row + GameField.cell_size / 2), radius)
 
     def get_pellets_left(self):
-        return sum(1 for row in range(self.height) for col in range(self.width) if self.pellets[row][col] is not None
-                   and not self.pellets[row][col].is_eaten())
+        return sum(bool(self.pellets[row][col].get_value()) for row in range(self.height) for col in range(self.width)
+                   if self.pellets[row][col] is not None and not self.pellets[row][col].is_eaten())
+
+    def is_in_magic_state(self) -> bool:
+        return self.in_magic_state
+
+    def set_magic_state(self, new_state: bool) -> None:
+        self.in_magic_state = new_state
+
+    def update_magic_state(self, ticks_passed: int) -> None:
+        print(self.in_magic_state)
+        self.magic_state_ticks += ticks_passed
+        if self.magic_state_ticks >= GameField.ticks_to_end_magic_state:
+            self.set_magic_state(False)
+            self.magic_state_ticks %= GameField.ticks_to_end_magic_state
