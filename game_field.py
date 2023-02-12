@@ -68,11 +68,11 @@ class GameField:
                     current_row.append(None)
             self.pellets.append(current_row)
 
-    def get_ghosts_cells(self):
+    def get_ghosts_cells(self) -> list[tuple[int, int]]:
         return [(row, col) for col in range(self.width) for row in range(self.height)
                 if self.field_scheme[row][col] == '@']
 
-    def get_pacman_cords(self):
+    def get_pacman_cords(self) -> tuple[int, int]:
         for row in range(self.height):
             for col in range(self.width):
                 if self.field_scheme[row][col] == '%':
@@ -180,7 +180,7 @@ class GameField:
                                        (GameField.cell_size * col + GameField.cell_size / 2,
                                         GameField.cell_size * row + GameField.cell_size / 2), radius)
 
-    def get_pellets_left(self):
+    def get_pellets_left(self) -> int:
         return sum(bool(self.pellets[row][col].get_value()) for row in range(self.height) for col in range(self.width)
                    if self.pellets[row][col] is not None and not self.pellets[row][col].is_eaten())
 

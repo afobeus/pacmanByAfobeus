@@ -167,25 +167,25 @@ class Ghost(pygame.sprite.Sprite):
         return random.choice([way for way in possible_ways if not core.is_opposite(way[0], self.current_direction)])
 
     def get_way_to_pacman(self, pacman: Pacman):
-        object_x, object_y = self.rect.x, self.rect.y
+        self_x, self_y = self.rect.x, self.rect.y
         pacman_x, pacman_y = pacman.get_cords()
         for direction in Ghost.directions:
-            distance_to_wall = self.game_field.min_distance_to_wall(direction, object_x, object_y)
+            distance_to_wall = self.game_field.min_distance_to_wall(direction, self_x, self_y)
             if direction == core.DIR_LEFT:
-                distance_to_pacman = object_x - (pacman_x - GameField.cell_size)
-                if object_y == pacman_y and 0 <= distance_to_pacman <= distance_to_wall:
+                distance_to_pacman = self_x - (pacman_x + GameField.cell_size)
+                if self_y == pacman_y and 0 <= distance_to_pacman <= distance_to_wall:
                     return direction
             elif direction == core.DIR_RIGHT:
-                distance_to_pacman = pacman_x - (object_x + GameField.cell_size)
-                if object_y == pacman_y and 0 <= distance_to_pacman <= distance_to_wall:
+                distance_to_pacman = pacman_x - (self_x + GameField.cell_size)
+                if self_y == pacman_y and 0 <= distance_to_pacman <= distance_to_wall:
                     return direction
             elif direction == core.DIR_UP:
-                distance_to_pacman = object_y - (pacman_y + GameField.cell_size)
-                if object_x == pacman_x and 0 <= distance_to_pacman <= distance_to_wall:
+                distance_to_pacman = self_y - (pacman_y + GameField.cell_size)
+                if self_x == pacman_x and 0 <= distance_to_pacman <= distance_to_wall:
                     return direction
             elif direction == core.DIR_DOWN:
-                distance_to_pacman = pacman_y - (object_y + GameField.cell_size)
-                if object_x == pacman_x and 0 <= distance_to_pacman <= distance_to_wall:
+                distance_to_pacman = pacman_y - (self_y + GameField.cell_size)
+                if self_x == pacman_x and 0 <= distance_to_pacman <= distance_to_wall:
                     return direction
         return None
 
@@ -230,6 +230,7 @@ class Ghost(pygame.sprite.Sprite):
 
     def set_magic_state(self, new_state: bool) -> None:
         self.magic_state = new_state
+        self.magic_state_ticks = 0
 
     def update_magic_state(self, ticks_passed: int) -> None:
         self.magic_state_ticks += ticks_passed
