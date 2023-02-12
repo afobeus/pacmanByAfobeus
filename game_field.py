@@ -188,7 +188,6 @@ class GameField:
         self.in_magic_state = new_state
 
     def update_magic_state(self, ticks_passed: int) -> None:
-        print(self.in_magic_state)
         self.magic_state_ticks += ticks_passed
         if self.magic_state_ticks >= GameField.ticks_to_end_magic_state:
             self.set_magic_state(False)
