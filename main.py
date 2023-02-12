@@ -1,26 +1,25 @@
-import time
-
 import sys
 import pygame
+
 from game_field import GameField
 from essences import Pacman, Ghost
 import core
 
 
-def info_screen(text, screen) -> None:
+def info_screen(text: list, screen: pygame.Surface) -> None:
     width, height = screen.get_size()
     background = pygame.transform.scale(core.load_image("start_screen.png"), (width, height))
     screen.blit(background, (0, 0))
-    font = pygame.font.Font(None, 50)
-    current_text_y = 30
+    text_font = pygame.font.Font(None, 50)
+    current_text_y = 30  # 30 is start height for intro text
     for line in text:
-        string_rendered = font.render(line, True, pygame.Color('white'))
-        intro_rect = string_rendered.get_rect()
+        string_rendered = text_font.render(line, True, pygame.Color('white'))
+        text_rect = string_rendered.get_rect()
         current_text_y += 10
-        intro_rect.top = current_text_y
-        intro_rect.x = width // 2 - intro_rect.width // 2
-        current_text_y += intro_rect.height
-        screen.blit(string_rendered, intro_rect)
+        text_rect.top = current_text_y
+        text_rect.x = width // 2 - text_rect.width // 2
+        current_text_y += text_rect.height
+        screen.blit(string_rendered, text_rect)
 
     while True:
         for event in pygame.event.get():
@@ -32,7 +31,7 @@ def info_screen(text, screen) -> None:
         pygame.display.flip()
 
 
-def process_key_pressed(event, pacman):
+def process_key_pressed(event, pacman: Pacman):
     if event.key == pygame.K_LEFT:
         pacman.change_direction(core.DIR_LEFT)
     elif event.key == pygame.K_RIGHT:
@@ -43,7 +42,7 @@ def process_key_pressed(event, pacman):
         pacman.change_direction(core.DIR_DOWN)
 
 
-def render_score(screen, game_field, pacman) -> None:
+def render_score(screen, game_field: GameField, pacman: Pacman) -> None:
     font = pygame.font.Font(None, 50)
     text = font.render("Score: " + str(pacman.get_score()), True, (100, 255, 100))
     text_x = 0
@@ -53,7 +52,6 @@ def render_score(screen, game_field, pacman) -> None:
 
 def start_game(show_start_screen=True):
     clock = pygame.time.Clock()
-
     game_field = GameField()
     game_field.load_map_scheme("original level.txt")
     screen = pygame.display.set_mode(game_field.get_screen_size())
@@ -73,7 +71,6 @@ def start_game(show_start_screen=True):
 
     clock.tick()
     while True:
-        # time.sleep(1)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return 0
