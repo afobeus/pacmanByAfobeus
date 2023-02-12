@@ -34,16 +34,19 @@ class GameField:
     wall_border_color, cell_border_color = "blue", (63, 63, 252)
     pellet_color, pellet_radius = "yellow", 5
     magic_pellet_color, magic_pellet_radius = "yellow", 12
-    ticks_to_end_magic_state = 10_000
 
     def __init__(self) -> None:
         self.pygame_screen = None
         self.field_scheme = None
-        self.in_magic_state = False
-        self.magic_state_ticks = 0
 
     def set_screen(self, pygame_screen: pygame.Surface) -> None:
         self.pygame_screen = pygame_screen
+
+    def set_pacman(self, pacman) -> None:
+        self.pacman = pacman
+
+    def set_ghosts(self, ghosts: list) -> None:
+        self.ghosts = ghosts
 
     def load_map_scheme(self, scheme_file_name: str) -> None:
         with open(scheme_file_name, 'r', encoding="utf-8") as input_file:
@@ -181,14 +184,6 @@ class GameField:
         return sum(bool(self.pellets[row][col].get_value()) for row in range(self.height) for col in range(self.width)
                    if self.pellets[row][col] is not None and not self.pellets[row][col].is_eaten())
 
-    def is_in_magic_state(self) -> bool:
-        return self.in_magic_state
-
-    def set_magic_state(self, new_state: bool) -> None:
-        self.in_magic_state = new_state
-
-    def update_magic_state(self, ticks_passed: int) -> None:
-        self.magic_state_ticks += ticks_passed
-        if self.magic_state_ticks >= GameField.ticks_to_end_magic_state:
-            self.set_magic_state(False)
-            self.magic_state_ticks %= GameField.ticks_to_end_magic_state
+    def set_magic_state(self) -> None:
+        for ghost in self.ghosts:
+            ghost.set_magic_state(True)

@@ -27,7 +27,7 @@ def info_screen(text, screen) -> None:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit(0)
-            elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 return
         pygame.display.flip()
 
@@ -51,13 +51,6 @@ def render_score(screen, game_field, pacman) -> None:
     screen.blit(text, (text_x, text_y))
 
 
-def pacman_collides_ghost(pacman, ghosts) -> bool:
-    for ghost in ghosts:
-        if pygame.sprite.collide_mask(pacman, ghost):
-            return True
-    return False
-
-
 def start_game(show_start_screen=True):
     clock = pygame.time.Clock()
 
@@ -66,13 +59,15 @@ def start_game(show_start_screen=True):
     screen = pygame.display.set_mode(game_field.get_screen_size())
     game_field.set_screen(screen)
     if show_start_screen:
-        info_screen(["Pacman", "by afobeus", "", "Press any key", "to start"], screen)
+        info_screen(["Pacman", "by afobeus", "", "Press enter", "to start"], screen)
 
     essences_sprite_group = pygame.sprite.Group()
     pacman = Pacman(core.DIR_LEFT, game_field.get_pacman_cords(), game_field, "pacman_sprite_sheet.png")
+    game_field.set_pacman(pacman)
     essences_sprite_group.add(pacman)
     ghosts = [Ghost((GameField.cell_size * col, GameField.cell_size * row), game_field)
               for row, col in game_field.get_ghosts_cells()]
+    game_field.set_ghosts(ghosts)
     for ghost in ghosts:
         essences_sprite_group.add(ghost)
 
@@ -87,20 +82,24 @@ def start_game(show_start_screen=True):
 
         if game_field.get_pellets_left() == 0:
             info_screen(["You win!", f"Your score: {pacman.get_score()}" "",
-                         "to restart press any key"], screen)
+                         "to restart", "press enter"], screen)
             return 1
 
-        if pacman_collides_ghost(pacman, ghosts):
-            info_screen(["You lose", f"Your score: {pacman.get_score()}", "",
-                         "to restart press any key"], screen)
-            return 1
+        for ghost in ghosts:
+            if pygame.sprite.collide_mask(pacman, ghost):
+                if ghost.is_in_magic_state():
+                    ghost.reset_position()
+                else:
+                    info_screen(["You lose", f"Your score: {pacman.get_score()}", "",
+                                 "to restart", "press enter"], screen)
+                    return 1
 
         ticks_passed = clock.tick()
 
         pacman.move(ticks_passed)
         for ghost in ghosts:
             ghost.move(ticks_passed, pacman)
-        game_field.update_magic_state(ticks_passed)
+            ghost.update_magic_state(ticks_passed)
 
         screen.fill("black")
         game_field.render()

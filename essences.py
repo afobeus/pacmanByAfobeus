@@ -127,7 +127,7 @@ class Pacman(pygame.sprite.Sprite):
         self.current_score += pellet.get_value()
         pellet.set_eaten(True)
         if pellet.is_magic():
-            self.game_field.set_magic_state(True)
+            self.game_field.set_magic_state()
 
     def get_score(self):
         return self.current_score
@@ -139,6 +139,7 @@ class Pacman(pygame.sprite.Sprite):
 class Ghost(pygame.sprite.Sprite):
     directions = [core.DIR_UP, core.DIR_DOWN, core.DIR_LEFT, core.DIR_RIGHT]
     ticks_to_move_1_px = 11
+    ticks_to_end_magic_state = 20_000
 
     def __init__(self, start_cords: tuple[int, int], game_field: GameField) -> None:
         super().__init__()
@@ -151,6 +152,9 @@ class Ghost(pygame.sprite.Sprite):
         self.image = self.regular_image
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = start_cords
+        self.start_cords = start_cords
+        self.magic_state = False
+        self.magic_state_ticks = 0
 
     def get_random_way(self) -> tuple[str, int]:
         possible_ways = []
@@ -193,7 +197,7 @@ class Ghost(pygame.sprite.Sprite):
         cur_cell = get_indexes_by_cords(self.rect.x, self.rect.y)
         way_to_pacman = self.get_way_to_pacman(pacman)
         if way_to_pacman is not None:
-            if self.game_field.is_in_magic_state():
+            if self.magic_state:
                 direction = core.get_opposite(way_to_pacman)
             else:
                 direction = way_to_pacman
@@ -208,13 +212,30 @@ class Ghost(pygame.sprite.Sprite):
 
         self.rect = move_essence(direction, distance_to_wall,
                                  self.ticks_passed // Ghost.ticks_to_move_1_px, self.rect)
+        self.update_magic_state(ticks_passed)
         self.update_animation()
         self.ticks_passed %= Ghost.ticks_to_move_1_px
         self.last_cell_processed = cur_cell
         self.current_direction = direction
 
     def update_animation(self):
-        if self.game_field.is_in_magic_state():
+        if self.magic_state:
             self.image = self.blue_image
         else:
             self.image = self.regular_image
+
+    def reset_position(self):
+        self.rect.x, self.rect.y = self.start_cords
+        self.magic_state = False
+
+    def set_magic_state(self, new_state: bool) -> None:
+        self.magic_state = new_state
+
+    def update_magic_state(self, ticks_passed: int) -> None:
+        self.magic_state_ticks += ticks_passed
+        if self.magic_state_ticks >= Ghost.ticks_to_end_magic_state:
+            self.set_magic_state(False)
+            self.magic_state_ticks %= Ghost.ticks_to_end_magic_state
+
+    def is_in_magic_state(self) -> bool:
+        return self.magic_state
