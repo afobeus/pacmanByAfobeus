@@ -146,7 +146,9 @@ class Ghost(pygame.sprite.Sprite):
         self.ticks_passed = 0
         self.last_cell_processed = None
         self.current_direction = core.DIR_UP
-        self.image = core.load_image("ghost.png")
+        self.regular_image = core.load_image("ghost.png")
+        self.blue_image = core.load_image("ghost_blue.png")
+        self.image = self.regular_image
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = start_cords
 
@@ -158,7 +160,7 @@ class Ghost(pygame.sprite.Sprite):
                 possible_ways.append((direction, distance))
         if len(possible_ways) == 1:
             return possible_ways[0]
-        return random.choice([way for way in possible_ways if not core.opposite(way[0], self.current_direction)])
+        return random.choice([way for way in possible_ways if not core.is_opposite(way[0], self.current_direction)])
 
     def get_way_to_pacman(self, pacman: Pacman):
         object_x, object_y = self.rect.x, self.rect.y
@@ -191,7 +193,10 @@ class Ghost(pygame.sprite.Sprite):
         cur_cell = get_indexes_by_cords(self.rect.x, self.rect.y)
         way_to_pacman = self.get_way_to_pacman(pacman)
         if way_to_pacman is not None:
-            direction = way_to_pacman
+            if self.game_field.is_in_magic_state():
+                direction = core.get_opposite(way_to_pacman)
+            else:
+                direction = way_to_pacman
             distance_to_wall = self.game_field.min_distance_to_wall(direction, self.rect.x, self.rect.y)
         elif cur_cell != self.last_cell_processed:
             direction, distance_to_wall = self.get_random_way()
@@ -203,6 +208,13 @@ class Ghost(pygame.sprite.Sprite):
 
         self.rect = move_essence(direction, distance_to_wall,
                                  self.ticks_passed // Ghost.ticks_to_move_1_px, self.rect)
+        self.update_animation()
         self.ticks_passed %= Ghost.ticks_to_move_1_px
         self.last_cell_processed = cur_cell
         self.current_direction = direction
+
+    def update_animation(self):
+        if self.game_field.is_in_magic_state():
+            self.image = self.blue_image
+        else:
+            self.image = self.regular_image
