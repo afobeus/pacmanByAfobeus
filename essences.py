@@ -20,7 +20,7 @@ def move_essence(direction: str, distance_to_wall: int, distance: int,
 
 
 class Pacman(pygame.sprite.Sprite):
-    ticks_to_move_1_px, ticks_to_update_animation = 10, 30
+    ticks_to_move_1_px, ticks_to_update_animation = 8, 30
     direction_frames_indexes = {core.DIR_UP: 4, core.DIR_DOWN: 6, core.DIR_LEFT: 0, core.DIR_RIGHT: 2}
 
     def __init__(self, start_direction: str, start_cords: tuple[int, int],
@@ -138,7 +138,7 @@ class Pacman(pygame.sprite.Sprite):
 
 class Ghost(pygame.sprite.Sprite):
     directions = [core.DIR_UP, core.DIR_DOWN, core.DIR_LEFT, core.DIR_RIGHT]
-    ticks_to_move_1_px = 11
+    ticks_to_move_1_px = 9
     ticks_to_end_magic_state = 20_000
 
     def __init__(self, start_cords: tuple[int, int], game_field: GameField) -> None:
