@@ -53,7 +53,7 @@ def render_score(screen, game_field: GameField, pacman: Pacman) -> None:
 def start_game(show_start_screen=True):
     clock = pygame.time.Clock()
     game_field = GameField()
-    game_field.load_map_scheme("original level.txt")
+    game_field.load_map_scheme("movement test level.txt")
     screen = pygame.display.set_mode(game_field.get_screen_size())
     game_field.set_screen(screen)
     if show_start_screen:
