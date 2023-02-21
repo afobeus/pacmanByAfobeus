@@ -57,9 +57,10 @@ class GameField:
 
         self.width, self.height = max(map(len, data)), len(data)
         self.screen_size = min(GameField.standard_screen_size[0], self.width * GameField.cell_size),\
-            min(GameField.standard_screen_size[1], self.height * GameField.cell_size + 40)
-        self.shift_x, self.shift_y = self.get_start_shifts()
+            min(GameField.standard_screen_size[1], self.height * GameField.cell_size)
         self.field_scheme = list(map(lambda x: x.ljust(self.width, '.'), data))
+        self.shift_x, self.shift_y = self.get_start_shifts()
+        print(self.shift_x, self.shift_y)
         self.pellets = []
         for row in range(self.height):
             current_row = []
@@ -84,8 +85,8 @@ class GameField:
 
     def get_start_shifts(self) -> tuple[int, int]:
         pacman_cords = self.get_pacman_cords()
-        shift_x = pacman_cords[0] - self.screen_size[0]
-        shift_y = pacman_cords[1] - self.screen_size[1]
+        shift_x = min(0, -pacman_cords[0] + self.screen_size[0] // 2)
+        shift_y = min(0, -pacman_cords[1] + self.screen_size[1] // 2)
         return shift_x, shift_y
 
     def get_screen_size(self) -> tuple[int, int]:
