@@ -84,8 +84,10 @@ class GameField:
 
     def get_start_shifts(self) -> tuple[int, int]:
         pacman_cords = self.get_pacman_cords()
-        shift_x = min(0, -pacman_cords[0] + self.screen_size[0] // 2)
-        shift_y = min(0, -pacman_cords[1] + self.screen_size[1] // 2)
+        shift_x = min(0, max(-self.width * GameField.cell_size + self.screen_size[0],
+                             -pacman_cords[0] + self.screen_size[0] // 2))
+        shift_y = min(0, max(-self.height * GameField.cell_size + self.screen_size[1],
+                             -pacman_cords[1] + self.screen_size[1] // 2))
         return shift_x, shift_y
 
     def get_screen_size(self) -> tuple[int, int]:
