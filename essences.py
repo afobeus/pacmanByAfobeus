@@ -23,14 +23,14 @@ class Pacman(pygame.sprite.Sprite):
     ticks_to_move_1_px, ticks_to_update_animation = 8, 30
     direction_frames_indexes = {core.DIR_UP: 4, core.DIR_DOWN: 6, core.DIR_LEFT: 0, core.DIR_RIGHT: 2}
 
-    def __init__(self, start_direction: str, start_cords: tuple[int, int],
+    def __init__(self, start_direction: str, start_cords: list[int, int],
                  game_field: GameField, sprites_sheet: str) -> None:
         if start_direction not in [core.DIR_UP, core.DIR_DOWN, core.DIR_LEFT, core.DIR_RIGHT]:
             raise ValueError("Incorrect direction given")
 
         super().__init__()
         self.current_direction = start_direction
-        self.current_cords = list(start_cords)
+        self.current_cords = start_cords
         self.next_direction = None
         self.game_field = game_field
         self.ticks_passed = 0
@@ -149,13 +149,13 @@ class Ghost(pygame.sprite.Sprite):
     ticks_to_move_1_px = 9
     ticks_to_end_magic_state = 20_000
 
-    def __init__(self, start_cords: tuple[int, int], game_field: GameField) -> None:
+    def __init__(self, start_cords: list[int, int], game_field: GameField) -> None:
         super().__init__()
         self.game_field = game_field
         self.ticks_passed = 0
         self.last_cell_processed = None
         self.current_direction = core.DIR_UP
-        self.current_cords = list(start_cords)
+        self.current_cords = start_cords.copy()
         self.regular_image = core.load_image("ghost.png")
         self.blue_image = core.load_image("ghost_blue.png")
         self.image = self.regular_image
@@ -229,7 +229,6 @@ class Ghost(pygame.sprite.Sprite):
         self.ticks_passed %= Ghost.ticks_to_move_1_px
         self.last_cell_processed = cur_cell
 
-
     def update_animation(self):
         if self.magic_state:
             self.image = self.blue_image
@@ -237,7 +236,7 @@ class Ghost(pygame.sprite.Sprite):
             self.image = self.regular_image
 
     def reset_position(self):
-        self.rect.x, self.rect.y = self.start_cords
+        self.current_cords = self.start_cords.copy()
         self.magic_state = False
 
     def set_magic_state(self, new_state: bool) -> None:

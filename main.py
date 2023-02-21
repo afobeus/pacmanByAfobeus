@@ -51,17 +51,17 @@ def render_score(screen, pacman: Pacman) -> None:
 def start_game(show_start_screen=True):
     clock = pygame.time.Clock()
     game_field = GameField()
-    game_field.load_map_scheme("level 2.txt")
+    game_field.load_map_scheme("original level.txt")
     screen = pygame.display.set_mode(game_field.get_screen_size())
     game_field.set_screen(screen)
     if show_start_screen:
         info_screen(["Pacman", "by afobeus", "", "Press enter", "to start"], screen)
 
     essences_sprite_group = pygame.sprite.Group()
-    pacman = Pacman(core.DIR_DOWN, game_field.get_pacman_cords(), game_field, "pacman_sprite_sheet.png")
+    pacman = Pacman(core.DIR_LEFT, game_field.get_pacman_cords(), game_field, "pacman_sprite_sheet.png")
     game_field.set_pacman(pacman)
     essences_sprite_group.add(pacman)
-    ghosts = [Ghost((GameField.cell_size * col, GameField.cell_size * row), game_field)
+    ghosts = [Ghost([GameField.cell_size * col, GameField.cell_size * row], game_field)
               for row, col in game_field.get_ghosts_cells()]
     game_field.set_ghosts(ghosts)
     for ghost in ghosts:

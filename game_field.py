@@ -60,7 +60,6 @@ class GameField:
             min(GameField.standard_screen_size[1], self.height * GameField.cell_size)
         self.field_scheme = list(map(lambda x: x.ljust(self.width, '.'), data))
         self.shift_x, self.shift_y = self.get_start_shifts()
-        print(self.shift_x, self.shift_y)
         self.pellets = []
         for row in range(self.height):
             current_row = []
@@ -77,11 +76,11 @@ class GameField:
         return [(row, col) for col in range(self.width) for row in range(self.height)
                 if self.field_scheme[row][col] == '@']
 
-    def get_pacman_cords(self) -> tuple[int, int]:
+    def get_pacman_cords(self) -> list[int, int]:
         for row in range(self.height):
             for col in range(self.width):
                 if self.field_scheme[row][col] == '%':
-                    return col * GameField.cell_size, row * GameField.cell_size
+                    return [col * GameField.cell_size, row * GameField.cell_size]
 
     def get_start_shifts(self) -> tuple[int, int]:
         pacman_cords = self.get_pacman_cords()
