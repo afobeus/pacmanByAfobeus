@@ -42,18 +42,16 @@ def process_key_pressed(event, pacman: Pacman):
         pacman.change_direction(core.DIR_DOWN)
 
 
-def render_score(screen, game_field: GameField, pacman: Pacman) -> None:
+def render_score(screen, pacman: Pacman) -> None:
     font = pygame.font.Font(None, 50)
     text = font.render("Score: " + str(pacman.get_score()), True, (100, 255, 100))
-    text_x = 0
-    text_y = (game_field.height + 1) * GameField.cell_size - 35
-    screen.blit(text, (text_x, text_y))
+    screen.blit(text, (0, 0))
 
 
 def start_game(show_start_screen=True):
     clock = pygame.time.Clock()
     game_field = GameField()
-    game_field.load_map_scheme("movement test level.txt")
+    game_field.load_map_scheme("original level.txt")
     screen = pygame.display.set_mode(game_field.get_screen_size())
     game_field.set_screen(screen)
     if show_start_screen:
@@ -101,7 +99,7 @@ def start_game(show_start_screen=True):
         screen.fill("black")
         game_field.render()
         essences_sprite_group.draw(screen)
-        render_score(screen, game_field, pacman)
+        render_score(screen, pacman)
         pygame.display.flip()
 
 

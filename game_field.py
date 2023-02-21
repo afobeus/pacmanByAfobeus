@@ -58,7 +58,7 @@ class GameField:
         self.width, self.height = max(map(len, data)), len(data)
         self.screen_size = min(GameField.standard_screen_size[0], self.width * GameField.cell_size),\
             min(GameField.standard_screen_size[1], self.height * GameField.cell_size + 40)
-        self.shift_x, self.shift_y = 0, 0
+        self.shift_x, self.shift_y = self.get_start_shifts()
         self.field_scheme = list(map(lambda x: x.ljust(self.width, '.'), data))
         self.pellets = []
         for row in range(self.height):
@@ -81,6 +81,11 @@ class GameField:
             for col in range(self.width):
                 if self.field_scheme[row][col] == '%':
                     return col * GameField.cell_size, row * GameField.cell_size
+
+    def get_start_shifts(self) -> tuple[int, int]:
+        shift_x = -(self.width * GameField.cell_size - self.screen_size[0]) // 2
+        shift_y = -(self.height * GameField.cell_size - self.screen_size[1]) // 2
+        return shift_x, shift_y
 
     def get_screen_size(self) -> tuple[int, int]:
         if self.field_scheme is None:
