@@ -83,8 +83,9 @@ class GameField:
                     return col * GameField.cell_size, row * GameField.cell_size
 
     def get_start_shifts(self) -> tuple[int, int]:
-        shift_x = -(self.width * GameField.cell_size - self.screen_size[0]) // 2
-        shift_y = -(self.height * GameField.cell_size - self.screen_size[1]) // 2
+        pacman_cords = self.get_pacman_cords()
+        shift_x = pacman_cords[0] - self.screen_size[0]
+        shift_y = pacman_cords[1] - self.screen_size[1]
         return shift_x, shift_y
 
     def get_screen_size(self) -> tuple[int, int]:
