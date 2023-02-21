@@ -31,6 +31,7 @@ class Pellet:
 
 class GameField:
     cell_size, cell_border_width = 40, 1
+    standard_screen_size = 800, 800
     wall_border_color, cell_border_color = "blue", (63, 63, 252)
     pellet_color, pellet_radius = "yellow", 5
     magic_pellet_color, magic_pellet_radius = "yellow", 12
@@ -55,7 +56,10 @@ class GameField:
             raise ValueError("Empty scheme file for game field")
 
         self.width, self.height = max(map(len, data)), len(data)
+        self.screen_size = min(GameField.standard_screen_size[0], self.width * GameField.cell_size),\
+            min(GameField.standard_screen_size[1], self.height * GameField.cell_size)
         self.field_scheme = list(map(lambda x: x.ljust(self.width, '.'), data))
+        self.shift_x, self.shift_y = self.get_start_shifts()
         self.pellets = []
         for row in range(self.height):
             current_row = []
@@ -72,17 +76,24 @@ class GameField:
         return [(row, col) for col in range(self.width) for row in range(self.height)
                 if self.field_scheme[row][col] == '@']
 
-    def get_pacman_cords(self) -> tuple[int, int]:
+    def get_pacman_cords(self) -> list[int, int]:
         for row in range(self.height):
             for col in range(self.width):
                 if self.field_scheme[row][col] == '%':
-                    return col * GameField.cell_size, row * GameField.cell_size
+                    return [col * GameField.cell_size, row * GameField.cell_size]
+
+    def get_start_shifts(self) -> tuple[int, int]:
+        pacman_cords = self.get_pacman_cords()
+        shift_x = min(0, max(-self.width * GameField.cell_size + self.screen_size[0],
+                             -pacman_cords[0] + self.screen_size[0] // 2))
+        shift_y = min(0, max(-self.height * GameField.cell_size + self.screen_size[1],
+                             -pacman_cords[1] + self.screen_size[1] // 2))
+        return shift_x, shift_y
 
     def get_screen_size(self) -> tuple[int, int]:
         if self.field_scheme is None:
             raise RuntimeError("Screen is not set yet")
-
-        return self.width * GameField.cell_size, self.height * GameField.cell_size + 40
+        return self.screen_size
 
     def distance_to_wall(self, direction: str, object_x: int, object_y: int) -> int:
         object_row, object_col = get_indexes_by_cords(object_x, object_y)
@@ -128,15 +139,16 @@ class GameField:
                                "pygame screen are not set")
 
         # drawing rectangles like walls borders
+        shift_x, shift_y = self.shift_x, self.shift_y
         for row in range(len(self.field_scheme)):
             for col in range(len(self.field_scheme[row])):
                 if self.field_scheme[row][col] == '#':
                     pygame.draw.rect(self.pygame_screen, GameField.wall_border_color,
-                                     (GameField.cell_size * col, GameField.cell_size * row,
+                                     (GameField.cell_size * col + shift_x, GameField.cell_size * row + shift_y,
                                       GameField.cell_size, GameField.cell_size))
                 elif self.field_scheme[row][col] == '*':
                     pygame.draw.rect(self.pygame_screen, GameField.cell_border_color,
-                                     (GameField.cell_size * col, GameField.cell_size * row,
+                                     (GameField.cell_size * col + shift_x, GameField.cell_size * row + shift_y,
                                       GameField.cell_size, GameField.cell_size),
                                      GameField.cell_border_width)
         # deleting borders between neighbour wall cells
@@ -147,26 +159,28 @@ class GameField:
 
                 if col > 0 and self.field_scheme[row][col - 1] == '*':
                     pygame.draw.line(self.pygame_screen, "black",
-                                     (GameField.cell_size * col, GameField.cell_size * row + 1),
-                                     (GameField.cell_size * col,
-                                      GameField.cell_size * (row + 1) - 2))
+                                     (GameField.cell_size * col + shift_x,
+                                      GameField.cell_size * row + 1 + shift_y),
+                                     (GameField.cell_size * col + shift_x,
+                                      GameField.cell_size * (row + 1) - 2 + shift_y))
                 if col < len(self.field_scheme[row]) - 1 and self.field_scheme[row][col + 1] == '*':
                     pygame.draw.line(self.pygame_screen, "black",
-                                     (GameField.cell_size * (col + 1) - 1,
-                                      GameField.cell_size * row + 1),
-                                     (GameField.cell_size * (col + 1) - 1,
-                                      GameField.cell_size * (row + 1) - 2), 1)
+                                     (GameField.cell_size * (col + 1) - 1 + shift_x,
+                                      GameField.cell_size * row + 1 + shift_y),
+                                     (GameField.cell_size * (col + 1) - 1 + shift_x,
+                                      GameField.cell_size * (row + 1) - 2 + shift_y), 1)
                 if row > 0 and self.field_scheme[row - 1][col] == '*':
                     pygame.draw.line(self.pygame_screen, "black",
-                                     (GameField.cell_size * col + 1, GameField.cell_size * row),
-                                     (GameField.cell_size * (col + 1) - 2,
-                                      GameField.cell_size * row))
+                                     (GameField.cell_size * col + 1 + shift_x,
+                                      GameField.cell_size * row + shift_y),
+                                     (GameField.cell_size * (col + 1) - 2 + shift_x,
+                                      GameField.cell_size * row + shift_y))
                 if row < self.height - 1 and self.field_scheme[row + 1][col] == '*':
                     pygame.draw.line(self.pygame_screen, "black",
-                                     (GameField.cell_size * col + 1,
-                                      GameField.cell_size * (row + 1) - 1),
-                                     (GameField.cell_size * (col + 1) - 2,
-                                      GameField.cell_size * (row + 1) - 1), 1)
+                                     (GameField.cell_size * col + 1 + shift_x,
+                                      GameField.cell_size * (row + 1) - 1 + shift_y),
+                                     (GameField.cell_size * (col + 1) - 2 + shift_x,
+                                      GameField.cell_size * (row + 1) - 1 + shift_y), 1)
 
         for row in range(self.height):
             for col in range(self.width):
@@ -177,8 +191,8 @@ class GameField:
                     else:
                         color, radius = GameField.pellet_color, GameField.pellet_radius
                     pygame.draw.circle(self.pygame_screen, color,
-                                       (GameField.cell_size * col + GameField.cell_size / 2,
-                                        GameField.cell_size * row + GameField.cell_size / 2), radius)
+                                       (GameField.cell_size * col + GameField.cell_size / 2 + shift_x,
+                                        GameField.cell_size * row + GameField.cell_size / 2 + shift_y), radius)
 
     def get_pellets_left(self) -> int:
         return sum(bool(self.pellets[row][col].get_value()) for row in range(self.height) for col in range(self.width)
@@ -187,3 +201,13 @@ class GameField:
     def set_magic_state(self) -> None:
         for ghost in self.ghosts:
             ghost.set_magic_state(True)
+
+    def update_shift(self, direction: str, pixels: int) -> None:
+        if direction == core.DIR_UP:
+            self.shift_y = min(0, self.shift_y + pixels)
+        elif direction == core.DIR_DOWN:
+            self.shift_y = max(-self.height * GameField.cell_size + self.screen_size[1], self.shift_y - pixels)
+        elif direction == core.DIR_LEFT:
+            self.shift_x = min(0, self.shift_x + pixels)
+        elif direction == core.DIR_RIGHT:
+            self.shift_x = max(-self.width * GameField.cell_size + self.screen_size[0], self.shift_x - pixels)

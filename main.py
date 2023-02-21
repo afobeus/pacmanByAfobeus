@@ -42,12 +42,10 @@ def process_key_pressed(event, pacman: Pacman):
         pacman.change_direction(core.DIR_DOWN)
 
 
-def render_score(screen, game_field: GameField, pacman: Pacman) -> None:
+def render_score(screen, pacman: Pacman) -> None:
     font = pygame.font.Font(None, 50)
     text = font.render("Score: " + str(pacman.get_score()), True, (100, 255, 100))
-    text_x = 0
-    text_y = (game_field.height + 1) * GameField.cell_size - 35
-    screen.blit(text, (text_x, text_y))
+    screen.blit(text, (0, 0))
 
 
 def start_game(show_start_screen=True):
@@ -63,7 +61,7 @@ def start_game(show_start_screen=True):
     pacman = Pacman(core.DIR_LEFT, game_field.get_pacman_cords(), game_field, "pacman_sprite_sheet.png")
     game_field.set_pacman(pacman)
     essences_sprite_group.add(pacman)
-    ghosts = [Ghost((GameField.cell_size * col, GameField.cell_size * row), game_field)
+    ghosts = [Ghost([GameField.cell_size * col, GameField.cell_size * row], game_field)
               for row, col in game_field.get_ghosts_cells()]
     game_field.set_ghosts(ghosts)
     for ghost in ghosts:
@@ -101,7 +99,7 @@ def start_game(show_start_screen=True):
         screen.fill("black")
         game_field.render()
         essences_sprite_group.draw(screen)
-        render_score(screen, game_field, pacman)
+        render_score(screen, pacman)
         pygame.display.flip()
 
 
