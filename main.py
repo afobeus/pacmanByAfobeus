@@ -6,7 +6,10 @@ from essences import Pacman, Ghost
 import core
 
 
-def info_screen(text: list, screen: pygame.Surface) -> None:
+LEVELS_FILES = ["original level.txt", "level 2.txt"]
+
+
+def info_screen(text: list, screen: pygame.Surface) -> int:
     width, height = screen.get_size()
     background = pygame.transform.scale(core.load_image("start_screen.png"), (width, height))
     screen.blit(background, (0, 0))
@@ -26,8 +29,11 @@ def info_screen(text: list, screen: pygame.Surface) -> None:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit(0)
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                return
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    return 1
+                elif event.key == pygame.K_2:
+                    return 2
         pygame.display.flip()
 
 
@@ -42,20 +48,21 @@ def process_key_pressed(event, pacman: Pacman):
         pacman.change_direction(core.DIR_DOWN)
 
 
-def render_score(screen, pacman: Pacman) -> None:
+def render_score(screen: pygame.Surface, pacman: Pacman) -> None:
     font = pygame.font.Font(None, 50)
     text = font.render("Score: " + str(pacman.get_score()), True, (100, 255, 100))
     screen.blit(text, (0, 0))
 
 
-def start_game(show_start_screen=True):
+def start_game(show_start_screen=True, level_index=0):
+    screen = pygame.display.set_mode((800, 800))
+    if show_start_screen:
+        level_index = info_screen(["Pacman", "by afobeus", "", "press 1 or 2", "to chose level"], screen)
     clock = pygame.time.Clock()
     game_field = GameField()
-    game_field.load_map_scheme("original level.txt")
+    game_field.load_map_scheme(LEVELS_FILES[level_index - 1])
     screen = pygame.display.set_mode(game_field.get_screen_size())
     game_field.set_screen(screen)
-    if show_start_screen:
-        info_screen(["Pacman", "by afobeus", "", "Press enter", "to start"], screen)
 
     essences_sprite_group = pygame.sprite.Group()
     pacman = Pacman(core.DIR_LEFT, game_field.get_pacman_cords(), game_field, "pacman_sprite_sheet.png")
@@ -76,18 +83,18 @@ def start_game(show_start_screen=True):
                 process_key_pressed(event, pacman)
 
         if game_field.get_pellets_left() == 0:
-            info_screen(["You win!", f"Your score: {pacman.get_score()}" "",
-                         "to restart", "press enter"], screen)
-            return 1
+            level_choice = info_screen(["You win!", f"Your score: {pacman.get_score()}" "",
+                                       "press 1 or 2", "to chose level"], screen)
+            return level_choice
 
         for ghost in ghosts:
             if pygame.sprite.collide_mask(pacman, ghost):
                 if ghost.is_in_magic_state():
                     ghost.reset_position()
                 else:
-                    info_screen(["You lose", f"Your score: {pacman.get_score()}", "",
-                                 "to restart", "press enter"], screen)
-                    return 1
+                    level_choice = info_screen(["You lose", f"Your score: {pacman.get_score()}", "",
+                                               "press 1 or 2", "to chose level"], screen)
+                    return level_choice
 
         ticks_passed = clock.tick()
 
@@ -106,8 +113,8 @@ def start_game(show_start_screen=True):
 if __name__ == '__main__':
     pygame.init()
     pygame.display.set_caption("Pacman")
-    game_exit_code = start_game()
-    while game_exit_code == 1:
-        game_exit_code = start_game(False)
+    game_exit_code = start_game(True)
+    while game_exit_code in (1, 2):
+        game_exit_code = start_game(False, game_exit_code)
 
     pygame.quit()
