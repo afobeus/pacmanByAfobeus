@@ -10,6 +10,10 @@ LEVELS_FILES = ["original level.txt", "level 2.txt"]
 
 
 def info_screen(text: list, screen: pygame.Surface) -> int:
+    """Displays info screen with given text
+    Returns None if info screen was closed,
+    1 if level 1 was chosen,
+    2 if level 2 was chosen"""
     width, height = screen.get_size()
     background = pygame.transform.scale(core.load_image("start_screen.png"), (width, height))
     screen.blit(background, (0, 0))
@@ -37,7 +41,8 @@ def info_screen(text: list, screen: pygame.Surface) -> int:
         pygame.display.flip()
 
 
-def process_key_pressed(event, pacman: Pacman):
+def process_key_pressed(event, pacman: Pacman) -> None:
+    """Changes pacman direction by given key pressed event"""
     if event.key == pygame.K_LEFT:
         pacman.change_direction(core.DIR_LEFT)
     elif event.key == pygame.K_RIGHT:
@@ -49,12 +54,17 @@ def process_key_pressed(event, pacman: Pacman):
 
 
 def render_score(screen: pygame.Surface, pacman: Pacman) -> None:
+    """Renders pacman current score """
     font = pygame.font.Font(None, 50)
     text = font.render("Score: " + str(pacman.get_score()), True, (100, 255, 100))
     screen.blit(text, (0, 0))
 
 
 def start_game(show_start_screen=True, level_index=0):
+    """Starts game
+    After win or lose returns None if info screen was closed,
+    1 if level 1 was chosen,
+    2 if level 2 was chosen"""
     screen = pygame.display.set_mode((800, 800))
     if show_start_screen:
         level_index = info_screen(["Pacman", "by afobeus", "", "press 1 or 2", "to chose level"], screen)
@@ -62,7 +72,7 @@ def start_game(show_start_screen=True, level_index=0):
     game_field = GameField()
     game_field.load_map_scheme(LEVELS_FILES[level_index - 1])
     screen = pygame.display.set_mode(game_field.get_screen_size())
-    game_field.set_screen(screen)
+    game_field.set_pygame_screen(screen)
 
     essences_sprite_group = pygame.sprite.Group()
     pacman = Pacman(core.DIR_LEFT, game_field.get_pacman_cords(), game_field, "pacman_sprite_sheet.png")

@@ -4,6 +4,7 @@ import core
 
 
 def get_indexes_by_cords(x: int, y: int) -> tuple[int, int]:
+    """Returns cells indexes by given cords"""
     return y // GameField.cell_size, x // GameField.cell_size
 
 
@@ -40,7 +41,7 @@ class GameField:
         self.pygame_screen = None
         self.field_scheme = None
 
-    def set_screen(self, pygame_screen: pygame.Surface) -> None:
+    def set_pygame_screen(self, pygame_screen: pygame.Surface) -> None:
         self.pygame_screen = pygame_screen
 
     def set_pacman(self, pacman) -> None:
@@ -50,6 +51,7 @@ class GameField:
         self.ghosts = ghosts
 
     def load_map_scheme(self, scheme_file_name: str) -> None:
+        """Loads level design inside GameField object"""
         with open(scheme_file_name, 'r', encoding="utf-8") as input_file:
             data = input_file.read().split('\n')
         if not data:
@@ -73,16 +75,19 @@ class GameField:
             self.pellets.append(current_row)
 
     def get_ghosts_cells(self) -> list[tuple[int, int]]:
+        """Returns list of indexes of cells where ghosts are located before game start moment"""
         return [(row, col) for col in range(self.width) for row in range(self.height)
                 if self.field_scheme[row][col] == '@']
 
     def get_pacman_cords(self) -> list[int, int]:
+        """Returns indexes of cell where pacman is located before game start moment"""
         for row in range(self.height):
             for col in range(self.width):
                 if self.field_scheme[row][col] == '%':
                     return [col * GameField.cell_size, row * GameField.cell_size]
 
     def get_start_shifts(self) -> tuple[int, int]:
+        """Returns start shift for camera to be places nicely"""
         pacman_cords = self.get_pacman_cords()
         shift_x = min(0, max(-self.width * GameField.cell_size + self.screen_size[0],
                              -pacman_cords[0] + self.screen_size[0] // 2))
@@ -91,11 +96,13 @@ class GameField:
         return shift_x, shift_y
 
     def get_screen_size(self) -> tuple[int, int]:
+        """Returns size for pygame screen"""
         if self.field_scheme is None:
             raise RuntimeError("Screen is not set yet")
         return self.screen_size
 
     def distance_to_wall(self, direction: str, object_x: int, object_y: int) -> int:
+        """Returns distance to wall in pixels for certain given point and direction"""
         object_row, object_col = get_indexes_by_cords(object_x, object_y)
         result = 0
         if direction == core.DIR_LEFT:
@@ -128,6 +135,7 @@ class GameField:
             return max(0, GameField.cell_size * (object_row + result + 1) - object_y - GameField.cell_size - 1)
 
     def min_distance_to_wall(self, direction: str, object_x: int, object_y: int) -> int:
+        """Returns distance to wall in pixels for object by it`s given left upper angle and direction"""
         packman_rectangle_vertexes = [(object_x, object_y), (object_x + GameField.cell_size - 1, object_y),
                                       (object_x, object_y + GameField.cell_size - 1),
                                       (object_x + GameField.cell_size - 1, object_y + GameField.cell_size - 1)]
@@ -203,6 +211,7 @@ class GameField:
             ghost.set_magic_state(True)
 
     def update_shift(self, direction: str, pixels: int) -> None:
+        """Sets new shift by given direction and distance moved in pixels"""
         if direction == core.DIR_UP:
             self.shift_y = min(0, self.shift_y + pixels)
         elif direction == core.DIR_DOWN:
