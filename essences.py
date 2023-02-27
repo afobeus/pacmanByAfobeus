@@ -8,6 +8,7 @@ import core
 
 def new_cords(cords: list[int, int], direction: str, distance_to_wall: int,
               distance: int) -> list[int, int]:
+    """Returns new cords by given current cords, direction of move and move length"""
     if direction == core.DIR_LEFT:
         cords[0] -= min(distance_to_wall, distance)
     elif direction == core.DIR_RIGHT:
@@ -42,7 +43,8 @@ class Pacman(pygame.sprite.Sprite):
                                  GameField.cell_size, GameField.cell_size))
         self.cut_sheet(core.load_image(sprites_sheet))
 
-    def cut_sheet(self, sheet) -> None:
+    def cut_sheet(self, sheet: pygame.image) -> None:
+        """Processes image to prepare animation sheets"""
         self.frames = []
         columns, rows = sheet.get_width() // GameField.cell_size,\
             sheet.get_height() // GameField.cell_size
@@ -60,6 +62,7 @@ class Pacman(pygame.sprite.Sprite):
         self.next_direction = direction
 
     def move(self, ticks_passed: int) -> None:
+        """Moves pacman by given milliseconds passed from last frame processed"""
         self.ticks_passed += ticks_passed
         if self.ticks_passed < Pacman.ticks_to_move_1_px:
             return
@@ -87,6 +90,7 @@ class Pacman(pygame.sprite.Sprite):
         self.ex_cell = get_indexes_by_cords(*self.current_cords)
 
     def update_animation(self, ticks_passed: int) -> None:
+        """Changes pacman current shown sprite"""
         self.animation_ticks_passed += ticks_passed
         if self.animation_ticks_passed < Pacman.ticks_to_update_animation:
             return
@@ -99,6 +103,7 @@ class Pacman(pygame.sprite.Sprite):
         self.game_field.update_shift(self.current_direction, ticks_passed // Ghost.ticks_to_move_1_px)
 
     def check_pellets(self) -> None:
+        """Eat all pellets which are placed along pacman move"""
         start_row, start_col = self.ex_cell
         object_row, object_col = get_indexes_by_cords(*self.current_cords)
 
@@ -166,6 +171,7 @@ class Ghost(pygame.sprite.Sprite):
         self.magic_state_ticks = 0
 
     def get_random_way(self) -> tuple[str, int]:
+        """Returns random available way which is tuple of direction and distance to wall"""
         possible_ways = []
         for direction in Ghost.directions:
             distance = self.game_field.min_distance_to_wall(direction, *self.current_cords)
@@ -176,6 +182,7 @@ class Ghost(pygame.sprite.Sprite):
         return random.choice([way for way in possible_ways if not core.is_opposite(way[0], self.current_direction)])
 
     def get_way_to_pacman(self, pacman: Pacman):
+        """Returns direction to reach pacman if it is possible else None"""
         self_x, self_y = self.current_cords
         pacman_x, pacman_y = pacman.get_cords()
         for direction in Ghost.directions:
@@ -199,6 +206,7 @@ class Ghost(pygame.sprite.Sprite):
         return None
 
     def move(self, ticks_passed: int, pacman: Pacman) -> None:
+        """Moves ghost by given milliseconds passed from last frame processed"""
         self.ticks_passed += ticks_passed
         if self.ticks_passed < Ghost.ticks_to_move_1_px:
             return
@@ -230,6 +238,7 @@ class Ghost(pygame.sprite.Sprite):
         self.last_cell_processed = cur_cell
 
     def update_animation(self):
+        """Changes ghost current shown sprite"""
         if self.magic_state:
             self.image = self.blue_image
         else:
@@ -244,6 +253,7 @@ class Ghost(pygame.sprite.Sprite):
         self.magic_state_ticks = 0
 
     def update_magic_state(self, ticks_passed: int) -> None:
+        """Turns off magic state if enough time passed"""
         self.magic_state_ticks += ticks_passed
         if self.magic_state_ticks >= Ghost.ticks_to_end_magic_state:
             self.set_magic_state(False)
